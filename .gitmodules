@@ -1,3 +1,18 @@
 [submodule "games/pigeon-ascent"]
 	path = games/pigeon-ascent
 	url = https://github.com/zwx2238/pigeonAscent.git
+[submodule "games/pixel-princess-platformer"]
+	path = games/pixel-princess-platformer
+	url = https://github.com/zwx2238/pixel-princess-platformer.git
+[submodule "games/stolen-sword"]
+	path = games/stolen-sword
+	url = https://github.com/zwx2238/stolen-sword.git
+[submodule "games/dark-sun-dungeon"]
+	path = games/dark-sun-dungeon
+	url = https://github.com/zwx2238/dark-sun-dungeon.git
+[submodule "games/bagel-mvp"]
+	path = games/bagel-mvp
+	url = https://github.com/zwx2238/BagelMVP.git
+[submodule "games/100games"]
+	path = games/100games
+	url = https://github.com/zwx2238/100games.git

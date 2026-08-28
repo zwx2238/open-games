@@ -7,8 +7,13 @@ import { promisify } from "node:util";
 
 import { build } from "esbuild";
 
-import games from "../games.json" with { type: "json" };
 import { buildGodot3Html5 } from "./adapters/godot3-html5.mjs";
+import { buildRollupWeb } from "./adapters/rollup-web.mjs";
+import { buildStaticSingleHtml } from "./adapters/static-single-html.mjs";
+import { buildStaticKaplay } from "./adapters/static-kaplay.mjs";
+import { buildViteSingleHtml } from "./adapters/vite-single-html.mjs";
+import { buildViteStatic } from "./adapters/vite-static.mjs";
+import { generateGamesCatalog } from "./generate-games.mjs";
 
 const execFileAsync = promisify(execFile);
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -20,51 +25,83 @@ const worktreesDir = path.join(runtimeDir, "worktrees");
 const entryPoint = path.join(root, "service-src", "main.tsx");
 const adapters = new Map([
   ["godot3-html5", buildGodot3Html5],
+  ["rollup-web", buildRollupWeb],
+  ["static-single-html", buildStaticSingleHtml],
+  ["static-kaplay", buildStaticKaplay],
+  ["vite-single-html", buildViteSingleHtml],
+  ["vite-static", buildViteStatic],
 ]);
 
 await execFileAsync("git", ["submodule", "update", "--init", "--recursive", "--checkout"], {
   cwd: root,
   maxBuffer: 16 * 1024 * 1024,
 });
+const games = generateGamesCatalog();
 
 fs.rmSync(stagingDir, { recursive: true, force: true });
 fs.rmSync(previousDir, { recursive: true, force: true });
 fs.mkdirSync(stagingDir, { recursive: true });
 fs.mkdirSync(worktreesDir, { recursive: true });
+fs.mkdirSync(path.join(stagingDir, "covers"), { recursive: true });
+fs.mkdirSync(path.join(stagingDir, "notices"), { recursive: true });
 
 const builtGames = [];
+const copiedNotices = new Set();
 
 try {
-  for (const game of games) {
-    const source = path.join(root, game.sourcePath);
+  for (const [sourcePath, sourceGames] of groupBySource(games)) {
+    const source = path.join(root, sourcePath);
     const commit = await gitOutput(source, ["rev-parse", "HEAD"]);
     const status = await gitOutput(source, ["status", "--porcelain"]);
-    if (status) throw new Error(`${game.id} source checkout is dirty`);
-    const adapter = adapters.get(game.adapter);
-    if (!adapter) throw new Error(`unknown game adapter: ${game.adapter}`);
+    if (status) throw new Error(`${sourcePath} source checkout is dirty`);
 
-    const worktree = path.join(worktreesDir, `${game.id}-${commit}`);
+    const worktree = path.join(
+      worktreesDir,
+      `${sourcePath.replaceAll(/[^a-z0-9]+/gi, "-")}-${commit}`,
+    );
     await removeWorktree(source, worktree);
     await execFileAsync("git", ["worktree", "add", "--detach", worktree, commit], {
       cwd: source,
       maxBuffer: 16 * 1024 * 1024,
     });
 
-    const output = path.join(stagingDir, "games", game.id);
-    fs.mkdirSync(output, { recursive: true });
     try {
-      console.log(`[open-games] building ${game.id} from ${commit}`);
-      await adapter({ game, output, source, worktree });
+      console.log(
+        `[open-games] building ${sourceGames.length} game(s) from ${sourcePath} at ${commit}`,
+      );
+      for (const game of sourceGames) {
+        const adapter = adapters.get(game.adapter);
+        if (!adapter) throw new Error(`unknown game adapter: ${game.adapter}`);
+        const output = path.join(stagingDir, "games", game.id);
+        fs.mkdirSync(output, { recursive: true });
+        await adapter({ game, output, source, worktree });
+        if (game.coverSource) {
+          copyAsset(
+            worktree,
+            game.coverSource,
+            game.cover ? path.join(stagingDir, game.cover) : null,
+          );
+        } else if (game.catalogCoverSource) {
+          copyAsset(
+            root,
+            game.catalogCoverSource,
+            game.cover ? path.join(stagingDir, game.cover) : null,
+          );
+        }
+        if (!copiedNotices.has(game.notice)) {
+          copyAsset(worktree, game.noticeSource, path.join(stagingDir, game.notice));
+          copiedNotices.add(game.notice);
+        }
+        builtGames.push({
+          id: game.id,
+          commit,
+          adapter: game.adapter,
+          entry: game.entry,
+        });
+      }
     } finally {
       await removeWorktree(source, worktree);
     }
-
-    builtGames.push({
-      id: game.id,
-      commit,
-      adapter: game.adapter,
-      entry: game.entry,
-    });
   }
 
   const result = await build({
@@ -106,20 +143,6 @@ try {
     path.join(stagingDir, "index.html"),
     template.replace("__APP_CSS__", entryCssName).replace("__APP_JS__", entryJsName),
   );
-
-  const coversDir = path.join(stagingDir, "covers");
-  fs.mkdirSync(coversDir, { recursive: true });
-  fs.copyFileSync(
-    path.join(root, "games", "pigeon-ascent", "resource", "cover.png"),
-    path.join(coversDir, "pigeon-ascent.png"),
-  );
-  const noticesDir = path.join(stagingDir, "notices");
-  fs.mkdirSync(noticesDir, { recursive: true });
-  for (const [source, target] of [
-    ["games/pigeon-ascent/LICENSE", "pigeon-ascent-LICENSE.txt"],
-  ]) {
-    fs.copyFileSync(path.join(root, source), path.join(noticesDir, target));
-  }
 
   const manifest = {
     service: "open-games",
@@ -166,4 +189,28 @@ async function removeWorktree(source, worktree) {
     cwd: source,
     maxBuffer: 16 * 1024 * 1024,
   });
+}
+
+function copyAsset(base, relativeSource, target) {
+  if (!relativeSource || !target) return;
+  const source = path.resolve(base, relativeSource);
+  const basePrefix = `${path.resolve(base)}${path.sep}`;
+  if (!source.startsWith(basePrefix)) {
+    throw new Error(`asset escapes its source root: ${relativeSource}`);
+  }
+  if (!fs.statSync(source, { throwIfNoEntry: false })?.isFile()) {
+    throw new Error(`game asset does not exist: ${relativeSource}`);
+  }
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.copyFileSync(source, target);
+}
+
+function groupBySource(games) {
+  const groups = new Map();
+  for (const game of games) {
+    const group = groups.get(game.sourcePath) ?? [];
+    group.push(game);
+    groups.set(game.sourcePath, group);
+  }
+  return groups;
 }

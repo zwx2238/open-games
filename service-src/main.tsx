@@ -5,6 +5,7 @@ import {
   Maximize2,
   Play,
   RotateCcw,
+  Search,
   X,
 } from "lucide-react";
 import { StrictMode, useMemo, useRef, useState } from "react";
@@ -13,15 +14,52 @@ import { createRoot } from "react-dom/client";
 import { games } from "./games";
 import "./styles.css";
 
+const filterOptions = [
+  { label: "All games", value: "all" },
+  { label: "Independent forks", value: "featured" },
+  { label: "100 GAMES collection", value: "collection" },
+  ...Array.from(new Set(games.map((game) => game.category)))
+    .sort((left, right) => left.localeCompare(right))
+    .map((category) => ({
+      label: category,
+      value: `category:${category}`,
+    })),
+];
+
 function App() {
   const [selectedId, setSelectedId] = useState(games[0]?.id ?? "");
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [frameKey, setFrameKey] = useState(0);
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState("all");
   const frameRef = useRef<HTMLIFrameElement>(null);
   const selected = useMemo(
     () => games.find((game) => game.id === selectedId) ?? games[0],
     [selectedId],
   );
+  const visibleGames = useMemo(() => {
+    const normalizedQuery = query.trim().toLocaleLowerCase();
+    return games
+      .map((game, index) => ({ game, index }))
+      .filter(({ game }) => {
+        const matchesFilter = filter === "all"
+          || (filter === "featured" && game.featured)
+          || (filter === "collection" && !game.featured)
+          || (
+            filter.startsWith("category:")
+            && game.category === filter.slice("category:".length)
+          );
+        if (!matchesFilter) return false;
+        if (!normalizedQuery) return true;
+        return [
+          game.title,
+          game.author,
+          game.description,
+          game.category,
+          game.group,
+        ].some((value) => value.toLocaleLowerCase().includes(normalizedQuery));
+      });
+  }, [filter, query]);
 
   if (!selected) return null;
 
@@ -40,7 +78,7 @@ function App() {
   };
 
   return (
-    <main className="shell">
+    <main className={`shell ${playingId ? "is-playing" : ""}`}>
       <header className="app-header">
         <div className="brand">
           <span className="brand-mark" aria-hidden="true">OG</span>
@@ -64,23 +102,60 @@ function App() {
       </header>
 
       <div className="workspace">
-        <nav className="game-list" aria-label="Games">
-          {games.map((game, index) => (
-            <button
-              className={`game-row ${game.id === selected.id ? "is-selected" : ""}`}
-              key={game.id}
-              onClick={() => selectGame(game.id)}
-              type="button"
+        <aside className="catalog-panel">
+          <div className="catalog-tools">
+            <label className="search-field">
+              <Search aria-hidden="true" size={15} />
+              <input
+                aria-label="Search games"
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search games"
+                type="search"
+                value={query}
+              />
+            </label>
+            <select
+              aria-label="Filter games"
+              className="catalog-filter"
+              onChange={(event) => setFilter(event.target.value)}
+              value={filter}
             >
-              <span className="game-index">{String(index + 1).padStart(2, "0")}</span>
-              <span className="game-row-copy">
-                <strong>{game.title}</strong>
-                <small>{game.author}</small>
-              </span>
-              <span className="adapter">{game.adapter}</span>
-            </button>
-          ))}
-        </nav>
+              {filterOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <span className="catalog-count" aria-label={`${visibleGames.length} games shown`}>
+              {visibleGames.length}
+            </span>
+          </div>
+          <nav className="game-list" aria-label="Games">
+            {visibleGames.map(({ game, index }) => (
+              <button
+                className={`game-row ${game.id === selected.id ? "is-selected" : ""}`}
+                data-game-id={game.id}
+                key={game.id}
+                onClick={() => selectGame(game.id)}
+                type="button"
+              >
+                <span className="game-index">{String(index + 1).padStart(3, "0")}</span>
+                <span className="game-row-copy">
+                  <strong>{game.title}</strong>
+                  <small>{game.author}</small>
+                </span>
+                <span className="adapter">
+                  {game.featured
+                    ? "Independent"
+                    : `${game.category} / ${String(game.collectionNumber).padStart(2, "0")}`}
+                </span>
+              </button>
+            ))}
+            {visibleGames.length === 0 ? (
+              <p className="empty-results">No matches</p>
+            ) : null}
+          </nav>
+        </aside>
 
         <section className="stage">
           {playingId === selected.id ? (
@@ -121,6 +196,7 @@ function App() {
                 key={`${selected.id}-${frameKey}`}
                 ref={frameRef}
                 className="game-frame"
+                data-game-id={selected.id}
                 src={selected.entry}
                 title={selected.title}
                 allow="autoplay; fullscreen; gamepad"
@@ -143,6 +219,7 @@ function App() {
                 <dl className="facts">
                   <div><dt>Input</dt><dd>{selected.input}</dd></div>
                   <div><dt>Session</dt><dd>{selected.session}</dd></div>
+                  <div><dt>Category</dt><dd>{selected.category}</dd></div>
                   <div><dt>License</dt><dd>{selected.license}</dd></div>
                 </dl>
                 <div className="primary-actions">

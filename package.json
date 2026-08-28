@@ -10,6 +10,7 @@
   },
   "scripts": {
     "service-sdk:build": "pnpm --dir node_modules/@local-agent-bridge/embedded-service-sdk run build && pnpm --dir node_modules/@local-agent-bridge/node-sidecar-runtime run build",
+    "catalog:generate": "node scripts/generate-games.mjs",
     "service:build": "pnpm run service-sdk:build && node scripts/service-build.mjs",
     "service:serve": "node service/server.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",

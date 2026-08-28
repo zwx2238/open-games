@@ -4,11 +4,13 @@ Curated, self-hosted browser games built directly from forked Git source.
 
 ## Source model
 
-- Every game is a Git submodule pointing to a fork under the deployment
+- Every source is a Git submodule pointing to a fork under the deployment
   operator's namespace.
-- The superproject gitlink locks the exact game commit.
+- A source can provide one game or a reviewed collection catalog. The
+  superproject gitlink locks the exact source commit.
 - `service:build` creates detached worktrees, runs one reviewed build adapter
-  per game, and publishes only browser build outputs into `service-dist/`.
+  per source format, and publishes only browser build outputs into
+  `service-dist/`.
 - No game archive, source copy, upload API, or runtime build command is
   accepted.
 
@@ -17,6 +19,11 @@ Curated, self-hosted browser games built directly from forked Git source.
 | Game | Fork | Adapter |
 | --- | --- | --- |
 | Pigeon Ascent | `zwx2238/pigeonAscent` | Godot 3.2.3 HTML5 |
+| Pixel Princess Platformer | `zwx2238/pixel-princess-platformer` | Reviewed static Kaplay site |
+| Stolen Sword | `zwx2238/stolen-sword` | Rollup browser build |
+| 暗日地下城 | `zwx2238/dark-sun-dungeon` | Vite single-file HTML build |
+| POP! | `zwx2238/BagelMVP` | Vite static build |
+| 100 GAMES curated collection (95 selected) | `zwx2238/100games` | Reviewed static single-HTML adapter |
 
 ## Commands
 
@@ -28,3 +35,6 @@ pnpm run check
 ```
 
 The Godot adapter uses a digest-pinned `barichello/godot-ci` container image.
+The npm adapters install from each locked `package-lock.json` with lifecycle
+scripts disabled, then invoke only the build command fixed in the reviewed
+adapter.
