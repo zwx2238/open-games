@@ -1,0 +1,7 @@
+node_modules/
+service-dist/
+service-dist.old/
+service-dist.tmp/
+.runtime/
+playwright-report/
+test-results/

@@ -1,0 +1,40 @@
+{
+  "name": "@local-agent-bridge/open-games",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "localAgentBridgeService": {
+    "id": "open-games",
+    "envPrefix": "OPEN_GAMES",
+    "defaultPort": 3981
+  },
+  "scripts": {
+    "service-sdk:build": "pnpm --dir node_modules/@local-agent-bridge/embedded-service-sdk run build && pnpm --dir node_modules/@local-agent-bridge/node-sidecar-runtime run build",
+    "service:build": "pnpm run service-sdk:build && node scripts/service-build.mjs",
+    "service:serve": "node service/server.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node scripts/test.mjs",
+    "visual-smoke": "node scripts/visual-smoke.mjs",
+    "check": "pnpm run typecheck && pnpm run service:build && pnpm run test"
+  },
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=9"
+  },
+  "dependencies": {
+    "@local-agent-bridge/embedded-service-sdk": "link:../service-sdk/packages/embedded-service-sdk",
+    "@local-agent-bridge/node-sidecar-runtime": "link:../service-sdk/packages/node-sidecar-runtime",
+    "lucide-react": "^1.16.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "esbuild": "^0.25.12",
+    "playwright": "^1.62.1",
+    "typescript": "7.0.2"
+  },
+  "packageManager": "pnpm@10.33.0"
+}

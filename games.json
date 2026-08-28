@@ -1,0 +1,18 @@
+[
+  {
+    "id": "pigeon-ascent",
+    "title": "Pigeon Ascent",
+    "author": "Escada Games",
+    "description": "Raise a pigeon, sharpen its stats, and survive an escalating sequence of strange arena fights.",
+    "sourcePath": "games/pigeon-ascent",
+    "sourceUrl": "https://github.com/zwx2238/pigeonAscent",
+    "upstreamUrl": "https://github.com/Escada-Games/pigeonAscent",
+    "adapter": "godot3-html5",
+    "entry": "games/pigeon-ascent/index.html",
+    "cover": "covers/pigeon-ascent.png",
+    "license": "MIT",
+    "edition": "Open source 1.5.5",
+    "input": "Mouse",
+    "session": "5-20 min"
+  }
+]
