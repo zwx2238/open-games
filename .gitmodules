@@ -16,3 +16,12 @@
 [submodule "games/100games"]
 	path = games/100games
 	url = https://github.com/zwx2238/100games.git
+[submodule "games/mini-browser-games"]
+	path = games/mini-browser-games
+	url = https://github.com/zwx2238/mini-browser-games.git
+[submodule "games/sausi-games"]
+	path = games/sausi-games
+	url = https://github.com/zwx2238/games.git
+[submodule "games/littlejs-arcade"]
+	path = games/littlejs-arcade
+	url = https://github.com/zwx2238/LittleJSArcade.git

@@ -8,11 +8,15 @@ import { promisify } from "node:util";
 import { build } from "esbuild";
 
 import { buildGodot3Html5 } from "./adapters/godot3-html5.mjs";
+import { buildLittleJsSingleHtml } from "./adapters/littlejs-single-html.mjs";
 import { buildRollupWeb } from "./adapters/rollup-web.mjs";
+import { buildStaticDirectory } from "./adapters/static-directory.mjs";
 import { buildStaticSingleHtml } from "./adapters/static-single-html.mjs";
+import { buildStaticSingleFile } from "./adapters/static-single-file.mjs";
 import { buildStaticKaplay } from "./adapters/static-kaplay.mjs";
 import { buildViteSingleHtml } from "./adapters/vite-single-html.mjs";
 import { buildViteStatic } from "./adapters/vite-static.mjs";
+import { ensureGeneratedCovers } from "./generate-covers.mjs";
 import { generateGamesCatalog } from "./generate-games.mjs";
 
 const execFileAsync = promisify(execFile);
@@ -25,8 +29,11 @@ const worktreesDir = path.join(runtimeDir, "worktrees");
 const entryPoint = path.join(root, "service-src", "main.tsx");
 const adapters = new Map([
   ["godot3-html5", buildGodot3Html5],
+  ["littlejs-single-html", buildLittleJsSingleHtml],
   ["rollup-web", buildRollupWeb],
+  ["static-directory", buildStaticDirectory],
   ["static-single-html", buildStaticSingleHtml],
+  ["static-single-file", buildStaticSingleFile],
   ["static-kaplay", buildStaticKaplay],
   ["vite-single-html", buildViteSingleHtml],
   ["vite-static", buildViteStatic],
@@ -47,6 +54,7 @@ fs.mkdirSync(path.join(stagingDir, "notices"), { recursive: true });
 
 const builtGames = [];
 const copiedNotices = new Set();
+const commitsByGame = new Map();
 
 try {
   for (const [sourcePath, sourceGames] of groupBySource(games)) {
@@ -74,7 +82,13 @@ try {
         if (!adapter) throw new Error(`unknown game adapter: ${game.adapter}`);
         const output = path.join(stagingDir, "games", game.id);
         fs.mkdirSync(output, { recursive: true });
-        await adapter({ game, output, source, worktree });
+        await adapter({
+          game,
+          output,
+          outputRoot: stagingDir,
+          source,
+          worktree,
+        });
         if (game.coverSource) {
           copyAsset(
             worktree,
@@ -88,21 +102,32 @@ try {
             game.cover ? path.join(stagingDir, game.cover) : null,
           );
         }
-        if (!copiedNotices.has(game.notice)) {
-          copyAsset(worktree, game.noticeSource, path.join(stagingDir, game.notice));
-          copiedNotices.add(game.notice);
+        for (const notice of game.notices) {
+          if (copiedNotices.has(notice.target)) continue;
+          copyAsset(worktree, notice.source, path.join(stagingDir, notice.target));
+          copiedNotices.add(notice.target);
         }
+        commitsByGame.set(game.id, commit);
         builtGames.push({
           id: game.id,
+          sourceId: game.sourceId,
           commit,
           adapter: game.adapter,
           entry: game.entry,
+          cover: game.cover,
         });
       }
     } finally {
       await removeWorktree(source, worktree);
     }
   }
+
+  await ensureGeneratedCovers({
+    games,
+    stagingDir,
+    cacheDir: path.join(runtimeDir, "covers"),
+    commitsByGame,
+  });
 
   const result = await build({
     absWorkingDir: root,

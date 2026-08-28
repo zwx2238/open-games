@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "independent-forks",
+      "title": "Independent Forks",
+      "kind": "local-catalog",
+      "catalogPath": "catalog/featured-games.json",
+      "enabled": true
+    },
+    {
+      "id": "100games",
+      "title": "100 GAMES",
+      "kind": "100games",
+      "sourcePath": "games/100games",
+      "catalogPath": "catalog.json",
+      "enabled": true
+    },
+    {
+      "id": "mini-browser-games",
+      "title": "Mini Browser Games",
+      "kind": "mini-browser-games",
+      "sourcePath": "games/mini-browser-games",
+      "repository": "https://github.com/zwx2238/mini-browser-games",
+      "upstream": "https://github.com/wangzifan396-wzf/mini-browser-games",
+      "enabled": true
+    },
+    {
+      "id": "sausi-games",
+      "title": "Games Hub",
+      "kind": "sausi-games",
+      "sourcePath": "games/sausi-games",
+      "catalogPath": "games/registry.json",
+      "compatibilityPath": "open-games.compatibility.json",
+      "repository": "https://github.com/zwx2238/games",
+      "upstream": "https://github.com/sausi-7/games",
+      "enabled": true
+    },
+    {
+      "id": "littlejs-arcade",
+      "title": "LittleJS Arcade",
+      "kind": "littlejs-arcade",
+      "sourcePath": "games/littlejs-arcade",
+      "catalogPath": "open-games.catalog.json",
+      "enabled": true
+    }
+  ]
+}
