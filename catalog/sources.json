@@ -2,6 +2,13 @@
   "schemaVersion": 1,
   "sources": [
     {
+      "id": "showcase-forks",
+      "title": "Showcase Forks",
+      "kind": "local-catalog",
+      "catalogPath": "catalog/showcase-games.json",
+      "enabled": true
+    },
+    {
       "id": "independent-forks",
       "title": "Independent Forks",
       "kind": "local-catalog",

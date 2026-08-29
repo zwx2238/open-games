@@ -149,7 +149,7 @@ button {
   display: grid;
   grid-template-columns:
     minmax(240px, 1.8fr)
-    repeat(7, minmax(94px, 0.72fr))
+    repeat(6, minmax(94px, 0.72fr))
     minmax(96px, 0.75fr)
     36px;
   align-items: end;
@@ -246,6 +246,48 @@ button {
   background: var(--line);
 }
 
+.showcase-section {
+  padding: 4px 0 28px;
+  border-bottom: 1px solid var(--line);
+}
+
+.catalog-results {
+  min-width: 0;
+}
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  min-height: 42px;
+  gap: 12px;
+}
+
+.section-heading h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.section-heading span {
+  color: #888e84;
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+}
+
+.catalog-heading {
+  min-height: 58px;
+  padding-top: 10px;
+}
+
+.showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 16px;
+}
+
 .game-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(286px, 1fr));
@@ -261,6 +303,11 @@ button {
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--panel);
+}
+
+.game-card-showcase {
+  border-color: #4e5141;
+  background: #1a1c18;
 }
 
 .cover-frame {
@@ -280,7 +327,8 @@ button {
 }
 
 .status-badge,
-.quality-badge {
+.tier-badge,
+.performance-badge {
   position: absolute;
   top: 9px;
   display: inline-flex;
@@ -300,11 +348,46 @@ button {
   left: 9px;
 }
 
-.quality-badge {
+.tier-badge {
   right: 9px;
   color: #17180f;
   background: rgba(227, 220, 74, 0.94);
   border-color: rgba(227, 220, 74, 0.94);
+}
+
+.performance-badge {
+  left: 9px;
+  color: #e8ece4;
+  background: rgba(9, 11, 9, 0.8);
+}
+
+.performance-high {
+  color: #fff1be;
+  border-color: #b99343;
+}
+
+.tier-curated {
+  color: #10211f;
+  border-color: rgba(103, 200, 196, 0.9);
+  background: rgba(103, 200, 196, 0.92);
+}
+
+.tier-catalog {
+  color: #e2e4dd;
+  border-color: #5a6056;
+  background: rgba(29, 32, 28, 0.9);
+}
+
+.tier-degraded {
+  color: #fff2c4;
+  border-color: #c69a45;
+  background: rgba(82, 59, 16, 0.88);
+}
+
+.tier-archived {
+  color: #d1d3cd;
+  border-color: #6b7068;
+  background: rgba(42, 45, 41, 0.9);
 }
 
 .status-archived {
@@ -411,6 +494,38 @@ button {
   line-height: 14px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.game-card-showcase .game-facts {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.card-notes {
+  display: grid;
+  margin-top: 13px;
+  padding-top: 11px;
+  gap: 7px;
+  border-top: 1px solid #2d312a;
+}
+
+.card-notes p {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  margin: 0;
+  gap: 8px;
+  color: #b7bbb2;
+  font-size: 10px;
+  line-height: 16px;
+}
+
+.card-notes strong {
+  color: #858b81;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.card-notes span {
+  min-width: 0;
 }
 
 .tag-list {
@@ -582,6 +697,15 @@ button {
     gap: 12px;
   }
 
+  .showcase-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .game-card-showcase .game-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .game-description {
     min-height: 0;
   }
@@ -592,6 +716,10 @@ button {
 }
 
 @media (min-width: 1680px) {
+  .showcase-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .game-grid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }

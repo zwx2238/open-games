@@ -59,8 +59,13 @@ function validateGeneratedGames(games, sources) {
       "group",
       "language",
       "quality",
+      "editorialTier",
       "status",
       "runtime",
+      "runtimeNote",
+      "creationMethod",
+      "creationNote",
+      "performance",
       "technology",
     ]) {
       assertString(game[field], `${game.id} ${field}`);
@@ -71,6 +76,21 @@ function validateGeneratedGames(games, sources) {
     if (!Array.isArray(game.notices) || game.notices.length === 0) {
       throw new Error(`${game.id} must declare source notices`);
     }
+    if (!Array.isArray(game.devices) || game.devices.length === 0) {
+      throw new Error(`${game.id} must declare at least one device`);
+    }
+    assertEnum(
+      game.editorialTier,
+      ["showcase", "curated", "catalog", "degraded", "archived"],
+      `${game.id} editorialTier`,
+    );
+    assertEnum(
+      game.creationMethod,
+      ["vibe-coded", "ai-assisted", "not-disclosed"],
+      `${game.id} creationMethod`,
+    );
+    assertEnum(game.performance, ["standard", "high"], `${game.id} performance`);
+    assertEnum(game.runtime, ["offline", "network", "hybrid"], `${game.id} runtime`);
     const sourceRoot = resolveInside(root, game.sourcePath);
     if (!fs.statSync(sourceRoot, { throwIfNoEntry: false })?.isDirectory()) {
       throw new Error(`${game.id} source checkout does not exist: ${game.sourcePath}`);
@@ -87,6 +107,12 @@ function validateGeneratedGames(games, sources) {
 function assertString(value, label) {
   if (typeof value !== "string" || value.length === 0) {
     throw new Error(`${label} must be a non-empty string`);
+  }
+}
+
+function assertEnum(value, allowed, label) {
+  if (!allowed.includes(value)) {
+    throw new Error(`${label} must be one of: ${allowed.join(", ")}`);
   }
 }
 

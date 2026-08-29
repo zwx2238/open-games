@@ -8,6 +8,7 @@ const inputLabels = {
   keyboard: "键盘",
   gamepad: "手柄",
 };
+const deviceOrder = ["desktop", "mobile"];
 
 export function readSourcesRegistry(root) {
   const registry = readJson(path.join(root, "catalog", "sources.json"));
@@ -309,19 +310,35 @@ function normalizeGame(game, source) {
       ? game.inputs
       : parseInputText(game.input ?? ""),
   ).sort((left, right) => inputOrder.indexOf(left) - inputOrder.indexOf(right));
+  const status = game.status ?? "active";
+  const runtime = game.runtime ?? "offline";
+  const devices = uniqueStrings(
+    Array.isArray(game.devices) && game.devices.length > 0
+      ? game.devices
+      : [
+          "desktop",
+          ...(inputs.includes("touch") ? ["mobile"] : []),
+        ],
+  ).sort((left, right) => deviceOrder.indexOf(left) - deviceOrder.indexOf(right));
   const normalized = {
     ...game,
     sourceId: game.sourceId ?? source.id,
     sourceTitle: game.sourceTitle ?? source.title,
     inputs,
     input: inputs.map((input) => inputLabels[input] ?? input).join(" / ") || "未知",
-    devices: uniqueStrings([
-      "desktop",
-      ...(inputs.includes("touch") ? ["mobile"] : []),
-    ]),
+    devices,
     quality: game.quality ?? (game.featured ? "Curated" : "Cataloged"),
-    status: game.status ?? "active",
-    runtime: game.runtime ?? "offline",
+    editorialTier: game.editorialTier ?? inferEditorialTier(game, source, status),
+    status,
+    runtime,
+    runtimeNote: game.runtimeNote ?? (
+      runtime === "offline"
+        ? "自部署后可离线运行。"
+        : "玩法或素材包含外部网络依赖。"
+    ),
+    creationMethod: game.creationMethod ?? "not-disclosed",
+    creationNote: game.creationNote ?? "上游未披露创作方式。",
+    performance: game.performance ?? "standard",
     tags: uniqueStrings([...(game.tags ?? []), ...(game.contentTags ?? [])]),
     contentTags: uniqueStrings(game.contentTags ?? []),
     technology: game.technology ?? game.adapter,
@@ -332,6 +349,13 @@ function normalizeGame(game, source) {
     ];
   }
   return normalized;
+}
+
+function inferEditorialTier(game, source, status) {
+  if (status === "degraded") return "degraded";
+  if (status === "archived") return "archived";
+  if (source.id === "independent-forks" || game.featured) return "curated";
+  return "catalog";
 }
 
 function parseMiniReadme(markdown) {

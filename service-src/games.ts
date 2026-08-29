@@ -28,13 +28,20 @@ export type Game = {
   group: string;
   language: string;
   quality: string;
+  editorialTier: "showcase" | "curated" | "catalog" | "degraded" | "archived";
   status: string;
-  runtime: string;
+  runtime: "offline" | "network" | "hybrid";
+  runtimeNote: string;
+  creationMethod: "vibe-coded" | "ai-assisted" | "not-disclosed";
+  creationNote: string;
+  performance: "standard" | "high";
   tags: string[];
   contentTags: string[];
   technology: string;
   featured: boolean;
   collectionNumber?: number;
+  runtimeFiles?: string[];
+  runtimeDirectories?: string[];
 };
 
 export const games = gamesData as Game[];

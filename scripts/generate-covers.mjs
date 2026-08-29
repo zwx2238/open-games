@@ -58,7 +58,7 @@ export async function ensureGeneratedCovers({
   const baseUrl = `http://127.0.0.1:${address.port}`;
   const browser = await chromium.launch({ headless: true });
   const failures = [];
-  const batchSize = 6;
+  const batchSize = 3;
 
   try {
     for (let index = 0; index < pending.length; index += batchSize) {

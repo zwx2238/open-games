@@ -25,3 +25,27 @@
 [submodule "games/littlejs-arcade"]
 	path = games/littlejs-arcade
 	url = https://github.com/zwx2238/LittleJSArcade.git
+[submodule "games/neon-mayhem"]
+	path = games/neon-mayhem
+	url = https://github.com/zwx2238/neon-mayhem.git
+[submodule "games/server-survival"]
+	path = games/server-survival
+	url = https://github.com/zwx2238/server-survival.git
+[submodule "games/datacenter-survival"]
+	path = games/datacenter-survival
+	url = https://github.com/zwx2238/datacenter-survival.git
+[submodule "games/super-bash-folds"]
+	path = games/super-bash-folds
+	url = https://github.com/zwx2238/Super_Bash_Folds.git
+[submodule "games/mineworld"]
+	path = games/mineworld
+	url = https://github.com/zwx2238/MineWorld.git
+[submodule "games/operation-ironhold"]
+	path = games/operation-ironhold
+	url = https://github.com/zwx2238/operation-ironhold.git
+[submodule "games/apex-formula-2026"]
+	path = games/apex-formula-2026
+	url = https://github.com/zwx2238/apex-formula-2026.git
+[submodule "games/browser-shooter"]
+	path = games/browser-shooter
+	url = https://github.com/zwx2238/browser-shooter.git

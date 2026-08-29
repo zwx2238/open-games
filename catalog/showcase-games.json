@@ -1,0 +1,495 @@
+[
+  {
+    "id": "neon-mayhem",
+    "title": "Neon Mayhem",
+    "author": "Pranshu Parmar",
+    "description": "在 1986 年霓虹海岛城市中驾驶、飞行、接任务、经营资产并躲避警方；完整昼夜、通缉和开放世界系统都在浏览器本地运行。",
+    "sourcePath": "games/neon-mayhem",
+    "sourceEntry": "index.html",
+    "sourceUrl": "https://github.com/zwx2238/neon-mayhem",
+    "upstreamUrl": "https://github.com/pranshuparmar/neon-mayhem",
+    "adapter": "static-root",
+    "runtimeFiles": [
+      "index.html"
+    ],
+    "runtimeDirectories": [
+      "js"
+    ],
+    "entry": "games/neon-mayhem/index.html",
+    "cover": "covers/neon-mayhem.jpg",
+    "generateCover": true,
+    "notices": [
+      {
+        "target": "notices/neon-mayhem-LICENSE.txt",
+        "source": "LICENSE"
+      },
+      {
+        "target": "notices/neon-mayhem-THREE-LICENSE.txt",
+        "source": "THREE.LICENSE"
+      }
+    ],
+    "license": "Apache-2.0",
+    "edition": "Offline self-hosted fork",
+    "inputs": [
+      "touch",
+      "mouse",
+      "keyboard"
+    ],
+    "devices": [
+      "desktop",
+      "mobile"
+    ],
+    "session": "15-90 min",
+    "category": "开放世界",
+    "group": "Showcase Forks",
+    "language": "English",
+    "quality": "Curated",
+    "editorialTier": "showcase",
+    "status": "active",
+    "runtime": "offline",
+    "runtimeNote": "本地和局域网部署不依赖外部服务，匿名统计会自动停用。",
+    "creationMethod": "not-disclosed",
+    "creationNote": "上游未披露是否由 AI 辅助创作。",
+    "performance": "high",
+    "tags": [
+      "open-world",
+      "driving",
+      "missions",
+      "police",
+      "开放世界",
+      "驾驶"
+    ],
+    "technology": "Vanilla JS / Three.js",
+    "featured": true
+  },
+  {
+    "id": "server-survival",
+    "title": "Server Survival",
+    "author": "Kostyantyn Pshenychnyy",
+    "description": "扮演云架构师搭建服务拓扑，在流量暴涨、DDoS、冷启动、成本和故障之间维持系统；包含生存、25 关战役和沙盒模式。",
+    "sourcePath": "games/server-survival",
+    "sourceEntry": "index.html",
+    "sourceUrl": "https://github.com/zwx2238/server-survival",
+    "upstreamUrl": "https://github.com/pshenok/server-survival",
+    "adapter": "static-root",
+    "runtimeFiles": [
+      "index.html",
+      "game.js",
+      "style.css"
+    ],
+    "runtimeDirectories": [
+      "src",
+      "vendor"
+    ],
+    "entry": "games/server-survival/index.html",
+    "cover": "covers/server-survival.jpg",
+    "generateCover": true,
+    "notices": [
+      {
+        "target": "notices/server-survival-LICENSE.txt",
+        "source": "LICENSE"
+      },
+      {
+        "target": "notices/server-survival-THREE-LICENSE.txt",
+        "source": "vendor/THREE-LICENSE.txt"
+      },
+      {
+        "target": "notices/server-survival-TAILWIND-LICENSE.txt",
+        "source": "vendor/TAILWIND-LICENSE.txt"
+      }
+    ],
+    "license": "MIT",
+    "edition": "Vendored offline runtime",
+    "inputs": [
+      "touch",
+      "mouse",
+      "keyboard"
+    ],
+    "devices": [
+      "desktop",
+      "mobile"
+    ],
+    "session": "20-90 min",
+    "category": "模拟策略",
+    "group": "Showcase Forks",
+    "language": "Multilingual",
+    "quality": "Curated",
+    "editorialTier": "showcase",
+    "status": "active",
+    "runtime": "offline",
+    "runtimeNote": "Three.js 与 Tailwind 已放入 Fork，本地运行不访问公共 CDN。",
+    "creationMethod": "not-disclosed",
+    "creationNote": "上游未披露是否由 AI 辅助创作。",
+    "performance": "standard",
+    "tags": [
+      "cloud",
+      "architecture",
+      "tower-defense",
+      "云架构",
+      "模拟经营"
+    ],
+    "technology": "Vanilla ESM / Three.js",
+    "featured": true
+  },
+  {
+    "id": "datacenter-survival",
+    "title": "Datacenter Survival",
+    "author": "Kostyantyn Pshenychnyy",
+    "description": "从供电链、UPS、发电机到制冷、PUE 和 WUE，亲手经营一座数据中心；13 关战役和实验室会把物理层故障直接变成经营后果。",
+    "sourcePath": "games/datacenter-survival",
+    "sourceEntry": "index.html",
+    "sourceUrl": "https://github.com/zwx2238/datacenter-survival",
+    "upstreamUrl": "https://github.com/pshenok/datacenter-survival",
+    "adapter": "static-root",
+    "runtimeFiles": [
+      "index.html",
+      "game.js"
+    ],
+    "runtimeDirectories": [
+      "src",
+      "vendor"
+    ],
+    "entry": "games/datacenter-survival/index.html",
+    "cover": "covers/datacenter-survival.jpg",
+    "generateCover": true,
+    "notices": [
+      {
+        "target": "notices/datacenter-survival-LICENSE.txt",
+        "source": "LICENSE"
+      },
+      {
+        "target": "notices/datacenter-survival-THREE-LICENSE.txt",
+        "source": "vendor/THREE-LICENSE.txt"
+      },
+      {
+        "target": "notices/datacenter-survival-TAILWIND-LICENSE.txt",
+        "source": "vendor/TAILWIND-LICENSE.txt"
+      }
+    ],
+    "license": "MIT",
+    "edition": "Vendored offline runtime",
+    "inputs": [
+      "mouse",
+      "keyboard"
+    ],
+    "devices": [
+      "desktop"
+    ],
+    "session": "20-90 min",
+    "category": "模拟策略",
+    "group": "Showcase Forks",
+    "language": "Multilingual",
+    "quality": "Curated",
+    "editorialTier": "showcase",
+    "status": "active",
+    "runtime": "offline",
+    "runtimeNote": "Three.js 与 Tailwind 已放入 Fork，本地运行不访问公共 CDN。",
+    "creationMethod": "not-disclosed",
+    "creationNote": "上游未披露是否由 AI 辅助创作。",
+    "performance": "standard",
+    "tags": [
+      "datacenter",
+      "power",
+      "cooling",
+      "数据中心",
+      "经营"
+    ],
+    "technology": "Vanilla ESM / Three.js",
+    "featured": true
+  },
+  {
+    "id": "super-bash-folds",
+    "title": "Super Bash Folds",
+    "author": "Swarek / contributors",
+    "description": "面向本地对战的网页平台格斗游戏，包含 14 名开放授权角色、CPU、手柄、护盾、闪避、投技、道具、命数赛和限时赛。",
+    "sourcePath": "games/super-bash-folds",
+    "sourceEntry": "index.html",
+    "sourceUrl": "https://github.com/zwx2238/Super_Bash_Folds",
+    "upstreamUrl": "https://github.com/Swarek/Super_Bash_Folds",
+    "adapter": "vite-static",
+    "entry": "games/super-bash-folds/index.html",
+    "cover": "covers/super-bash-folds.jpg",
+    "generateCover": true,
+    "notices": [
+      {
+        "target": "notices/super-bash-folds-LICENSE.txt",
+        "source": "LICENSE"
+      },
+      {
+        "target": "notices/super-bash-folds-THIRD-PARTY-ASSETS.txt",
+        "source": "THIRD_PARTY_ASSETS.md"
+      }
+    ],
+    "license": "MIT / CC0 assets",
+    "edition": "Public preview",
+    "inputs": [
+      "keyboard",
+      "gamepad"
+    ],
+    "devices": [
+      "desktop"
+    ],
+    "session": "5-30 min",
+    "category": "格斗",
+    "group": "Showcase Forks",
+    "language": "English",
+    "quality": "Curated",
+    "editorialTier": "showcase",
+    "status": "active",
+    "runtime": "offline",
+    "runtimeNote": "生产构建包含运行所需代码和开放授权资产，不依赖外部服务。",
+    "creationMethod": "ai-assisted",
+    "creationNote": "上游说明初始引擎、内容工具、界面和生成素材由 GPT-5.6-Sol 在人工指导与审核下完成。",
+    "performance": "standard",
+    "tags": [
+      "platform-fighter",
+      "local-multiplayer",
+      "gamepad",
+      "平台格斗",
+      "本地对战"
+    ],
+    "technology": "TypeScript / Three.js / Vite",
+    "featured": true
+  },
+  {
+    "id": "mineworld",
+    "title": "MineWorld",
+    "author": "EVEDensity",
+    "description": "在无限生成的 3D 体素世界中探索、跳跃、放置和拆除方块，并与巡逻机器人周旋；桌面键鼠和手机双摇杆都可直接操作。",
+    "sourcePath": "games/mineworld",
+    "sourceEntry": "index.html",
+    "sourceUrl": "https://github.com/zwx2238/MineWorld",
+    "upstreamUrl": "https://github.com/EVEDensity/MineWorld",
+    "adapter": "static-root",
+    "runtimeFiles": [
+      "index.html"
+    ],
+    "runtimeDirectories": [
+      "js",
+      "styles",
+      "vendor"
+    ],
+    "entry": "games/mineworld/index.html",
+    "cover": "covers/mineworld.jpg",
+    "generateCover": true,
+    "notices": [
+      {
+        "target": "notices/mineworld-LICENSE.txt",
+        "source": "LICENSE"
+      },
+      {
+        "target": "notices/mineworld-THREE-LICENSE.txt",
+        "source": "vendor/THREE-LICENSE.txt"
+      }
+    ],
+    "license": "MIT",
+    "edition": "Vendored offline runtime",
+    "inputs": [
+      "touch",
+      "mouse",
+      "keyboard"
+    ],
+    "devices": [
+      "desktop",
+      "mobile"
+    ],
+    "session": "10-60 min",
+    "category": "沙盒",
+    "group": "Showcase Forks",
+    "language": "Chinese",
+    "quality": "Curated",
+    "editorialTier": "showcase",
+    "status": "active",
+    "runtime": "offline",
+    "runtimeNote": "Three.js 已放入 Fork，地形和纹理均在浏览器本地生成。",
+    "creationMethod": "not-disclosed",
+    "creationNote": "上游未披露是否由 AI 辅助创作。",
+    "performance": "high",
+    "tags": [
+      "voxel",
+      "sandbox",
+      "building",
+      "体素",
+      "建造"
+    ],
+    "technology": "Vanilla ESM / Three.js",
+    "featured": true
+  },
+  {
+    "id": "operation-ironhold",
+    "title": "Operation Ironhold",
+    "author": "StarKnightt",
+    "description": "三分钟内清理集装箱战区的完整单人 FPS：四种武器、瞄准镜、攀爬、敌人寻路、程序化材质与合成音频全部在一个页面中运行。",
+    "sourcePath": "games/operation-ironhold",
+    "sourceEntry": "index.html",
+    "sourceUrl": "https://github.com/zwx2238/operation-ironhold",
+    "upstreamUrl": "https://github.com/StarKnightt/operation-ironhold",
+    "adapter": "static-root",
+    "runtimeFiles": [
+      "index.html"
+    ],
+    "runtimeDirectories": [
+      "vendor"
+    ],
+    "entry": "games/operation-ironhold/index.html",
+    "cover": "covers/operation-ironhold.jpg",
+    "generateCover": true,
+    "notices": [
+      {
+        "target": "notices/operation-ironhold-LICENSE.txt",
+        "source": "LICENSE"
+      },
+      {
+        "target": "notices/operation-ironhold-THREE-LICENSE.txt",
+        "source": "vendor/THREE-LICENSE.txt"
+      }
+    ],
+    "license": "MIT",
+    "edition": "Offline single-page FPS",
+    "inputs": [
+      "mouse",
+      "keyboard"
+    ],
+    "devices": [
+      "desktop"
+    ],
+    "session": "3-15 min",
+    "category": "第一人称射击",
+    "group": "Showcase Forks",
+    "language": "English",
+    "quality": "Curated",
+    "editorialTier": "showcase",
+    "status": "active",
+    "runtime": "offline",
+    "runtimeNote": "Three.js 已放入 Fork；图像、模型和音频均由运行时代码生成。",
+    "creationMethod": "vibe-coded",
+    "creationNote": "上游公开了五轮原始提示词，并明确说明整款游戏由 AI agent 依据这些提示构建。",
+    "performance": "high",
+    "tags": [
+      "fps",
+      "single-file",
+      "procedural",
+      "射击",
+      "提示词"
+    ],
+    "technology": "Single-page JS / Three.js",
+    "featured": true
+  },
+  {
+    "id": "apex-formula-2026",
+    "title": "APEX FORMULA 2026",
+    "author": "Avi Hacker",
+    "description": "原创开放轮式赛车模拟器，提供 24 站赛历、22 位 AI 车手、排位、轮胎、进站、天气、冠军模式、计时赛和触控驾驶。",
+    "sourcePath": "games/apex-formula-2026",
+    "sourceEntry": "index.html",
+    "sourceUrl": "https://github.com/zwx2238/apex-formula-2026",
+    "upstreamUrl": "https://github.com/ahacker-1/apex-formula-2026",
+    "adapter": "vite-static",
+    "entry": "games/apex-formula-2026/index.html",
+    "cover": "covers/apex-formula-2026.jpg",
+    "generateCover": true,
+    "notices": [
+      {
+        "target": "notices/apex-formula-2026-LICENSE.txt",
+        "source": "LICENSE"
+      },
+      {
+        "target": "notices/apex-formula-2026-NOTICE.txt",
+        "source": "NOTICE"
+      },
+      {
+        "target": "notices/apex-formula-2026-THIRD-PARTY-NOTICES.txt",
+        "source": "THIRD_PARTY_NOTICES.md"
+      },
+      {
+        "target": "notices/apex-formula-2026-THREE-LICENSE.txt",
+        "source": "LICENSES/three.js-MIT.txt"
+      }
+    ],
+    "license": "Apache-2.0",
+    "edition": "Offline public build",
+    "inputs": [
+      "touch",
+      "keyboard",
+      "gamepad"
+    ],
+    "devices": [
+      "desktop",
+      "mobile"
+    ],
+    "session": "5-60 min",
+    "category": "竞速",
+    "group": "Showcase Forks",
+    "language": "English",
+    "quality": "Curated",
+    "editorialTier": "showcase",
+    "status": "active",
+    "runtime": "offline",
+    "runtimeNote": "Three.js、车辆和环境素材均随 Fork 构建，运行时没有网络依赖。",
+    "creationMethod": "not-disclosed",
+    "creationNote": "上游未明确披露是否由 AI 辅助创作。",
+    "performance": "high",
+    "tags": [
+      "racing",
+      "simulation",
+      "championship",
+      "赛车",
+      "模拟"
+    ],
+    "technology": "Vanilla ESM / Three.js",
+    "featured": true
+  },
+  {
+    "id": "browser-shooter",
+    "title": "Browser Shooter",
+    "author": "vkopitsa / contributors",
+    "description": "从单人波次生存到带经济、买枪和炸弹目标的 5v5 对战，还提供地图编辑器与真实地理位置战场；手机也有完整触控。",
+    "sourcePath": "games/browser-shooter",
+    "sourceEntry": "index.html",
+    "sourceUrl": "https://github.com/zwx2238/browser-shooter",
+    "upstreamUrl": "https://github.com/vkopitsa/browser-shooter",
+    "adapter": "vite-static",
+    "entry": "games/browser-shooter/index.html",
+    "cover": "covers/browser-shooter.jpg",
+    "generateCover": true,
+    "notices": [
+      {
+        "target": "notices/browser-shooter-LICENSE.txt",
+        "source": "LICENSE"
+      }
+    ],
+    "license": "MIT",
+    "edition": "Self-hosted Vite build",
+    "inputs": [
+      "touch",
+      "mouse",
+      "keyboard"
+    ],
+    "devices": [
+      "desktop",
+      "mobile"
+    ],
+    "session": "5-60 min",
+    "category": "第一人称射击",
+    "group": "Showcase Forks",
+    "language": "English",
+    "quality": "Curated",
+    "editorialTier": "showcase",
+    "status": "active",
+    "runtime": "hybrid",
+    "runtimeNote": "单人波次模式可离线；P2P 多人依赖 PeerJS，Planetary 模式依赖地图与地形服务。",
+    "creationMethod": "vibe-coded",
+    "creationNote": "上游明确声明代码、测试和 README 均由 Claude Code 在自然语言指导下完成。",
+    "performance": "high",
+    "tags": [
+      "fps",
+      "multiplayer",
+      "map-editor",
+      "vibe-coded",
+      "射击",
+      "多人"
+    ],
+    "technology": "React / Three.js / WebRTC",
+    "featured": true
+  }
+]

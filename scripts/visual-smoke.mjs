@@ -118,8 +118,16 @@ async function smokeCatalog(browser, name, viewport) {
     const response = await page.goto(baseUrl, { waitUntil: "networkidle" });
     if (!response?.ok()) throw new Error(`${name}: catalog failed to load`);
     await page.locator(".game-card").first().waitFor();
-    const initialCards = await page.locator(".game-card").count();
-    assert.ok(initialCards > 0 && initialCards <= 60, `${name}: initial card batch`);
+    assert.equal(
+      await page.locator(".showcase-grid .game-card").count(),
+      games.filter((game) => game.editorialTier === "showcase").length,
+      `${name}: showcase cards`,
+    );
+    const initialCatalogCards = await page.locator(".game-grid .game-card").count();
+    assert.ok(
+      initialCatalogCards > 0 && initialCatalogCards <= 60,
+      `${name}: initial catalog batch`,
+    );
     await page.getByText(`${games.length} 款游戏`, { exact: false }).waitFor();
     await assertResultCount(page, games.length, `${name}: all games`);
 
@@ -131,29 +139,29 @@ async function smokeCatalog(browser, name, viewport) {
     );
     await page.getByLabel("来源").selectOption("all");
 
-    await page.getByLabel("质量").selectOption("SSS");
+    await page.getByLabel("分层").selectOption("showcase");
     await assertResultCount(
       page,
-      games.filter((game) => game.quality === "SSS").length,
-      `${name}: quality filter`,
+      games.filter((game) => game.editorialTier === "showcase").length,
+      `${name}: editorial tier filter`,
     );
-    await page.getByLabel("质量").selectOption("all");
+    await page.getByLabel("分层").selectOption("all");
 
-    await page.getByLabel("状态").selectOption("archived");
+    await page.getByLabel("创作").selectOption("vibe-coded");
     await assertResultCount(
       page,
-      games.filter((game) => game.status === "archived").length,
-      `${name}: status filter`,
+      games.filter((game) => game.creationMethod === "vibe-coded").length,
+      `${name}: creation method filter`,
     );
-    await page.getByLabel("状态").selectOption("all");
+    await page.getByLabel("创作").selectOption("all");
 
-    await page.getByLabel("状态").selectOption("degraded");
+    await page.getByLabel("设备").selectOption("mobile");
     await assertResultCount(
       page,
-      games.filter((game) => game.status === "degraded").length,
-      `${name}: degraded status filter`,
+      games.filter((game) => game.devices.includes("mobile")).length,
+      `${name}: device filter`,
     );
-    await page.getByLabel("状态").selectOption("all");
+    await page.getByLabel("设备").selectOption("all");
 
     await page.getByLabel("运行").selectOption("network");
     await assertResultCount(
@@ -163,19 +171,28 @@ async function smokeCatalog(browser, name, viewport) {
     );
     await page.getByLabel("运行").selectOption("all");
 
+    await page.getByLabel("运行").selectOption("hybrid");
+    await assertResultCount(
+      page,
+      games.filter((game) => game.runtime === "hybrid").length,
+      `${name}: hybrid runtime filter`,
+    );
+    await page.getByLabel("运行").selectOption("all");
+
     await page.getByLabel("搜索游戏").fill("GAUNTLET");
     await assertResultCount(page, 1, `${name}: search`);
     assert.equal(await page.locator(".game-card").count(), 1, `${name}: search card count`);
     await page.getByLabel("搜索游戏").fill("");
 
-    const firstCard = page.locator(".game-card").first();
+    const firstCard = page.locator(".showcase-grid .game-card").first();
     await firstCard.locator(".game-cover").evaluate((image) => {
       if (!(image instanceof HTMLImageElement) || !image.complete || image.naturalWidth < 100) {
         throw new Error("first card cover did not load");
       }
     });
     assert.ok((await firstCard.locator(".game-description").innerText()).length >= 8);
-    assert.equal(await firstCard.locator(".game-facts div").count(), 4);
+    assert.equal(await firstCard.locator(".game-facts div").count(), 6);
+    assert.equal(await firstCard.locator(".card-notes p").count(), 2);
     await page.screenshot({
       path: path.join(output, `${name}-catalog.png`),
     });
@@ -192,7 +209,7 @@ async function smokeGame(browser, game) {
   const { context, failures, page } = await openPage(
     browser,
     viewport,
-    game.runtime === "network",
+    game.runtime !== "offline",
   );
   const label = `${game.devices.includes("mobile") ? "mobile" : "desktop"}-${game.id}`;
   try {

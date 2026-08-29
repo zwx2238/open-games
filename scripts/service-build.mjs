@@ -14,6 +14,7 @@ import { buildStaticDirectory } from "./adapters/static-directory.mjs";
 import { buildStaticSingleHtml } from "./adapters/static-single-html.mjs";
 import { buildStaticSingleFile } from "./adapters/static-single-file.mjs";
 import { buildStaticKaplay } from "./adapters/static-kaplay.mjs";
+import { buildStaticRoot } from "./adapters/static-root.mjs";
 import { buildViteSingleHtml } from "./adapters/vite-single-html.mjs";
 import { buildViteStatic } from "./adapters/vite-static.mjs";
 import { ensureGeneratedCovers } from "./generate-covers.mjs";
@@ -35,6 +36,7 @@ const adapters = new Map([
   ["static-single-html", buildStaticSingleHtml],
   ["static-single-file", buildStaticSingleFile],
   ["static-kaplay", buildStaticKaplay],
+  ["static-root", buildStaticRoot],
   ["vite-single-html", buildViteSingleHtml],
   ["vite-static", buildViteStatic],
 ]);

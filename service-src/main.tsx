@@ -21,6 +21,13 @@ import { games, type Game } from "./games";
 import "./styles.css";
 
 const pageSize = 60;
+const editorialTierOrder = new Map([
+  ["showcase", 0],
+  ["curated", 1],
+  ["catalog", 2],
+  ["degraded", 3],
+  ["archived", 4],
+]);
 const qualityOrder = new Map([
   ["Curated", 0],
   ["SSS", 1],
@@ -35,13 +42,12 @@ const qualityOrder = new Map([
   ["E", 10],
 ]);
 
-const qualityLabels: Record<string, string> = {
-  Curated: "精选",
-  Verified: "已验证",
-  Cataloged: "已收录",
-  "Upstream Issues": "上游不完整",
-  "Top Pick": "推荐",
-  Experimental: "实验",
+const editorialTierLabels: Record<string, string> = {
+  showcase: "展示级",
+  curated: "精选",
+  catalog: "完整目录",
+  degraded: "上游缺陷",
+  archived: "归档",
 };
 
 const statusLabels: Record<string, string> = {
@@ -51,15 +57,26 @@ const statusLabels: Record<string, string> = {
   experimental: "实验",
 };
 
-const languageLabels: Record<string, string> = {
-  Chinese: "中文",
-  English: "英文",
-  "Language-light": "少文字",
-};
-
 const runtimeLabels: Record<string, string> = {
   offline: "离线可玩",
   network: "需要联网",
+  hybrid: "离线 / 联网混合",
+};
+
+const creationMethodLabels: Record<string, string> = {
+  "vibe-coded": "Vibe Coding",
+  "ai-assisted": "AI 辅助",
+  "not-disclosed": "未披露",
+};
+
+const performanceLabels: Record<string, string> = {
+  standard: "普通设备",
+  high: "较高性能",
+};
+
+const deviceLabels: Record<string, string> = {
+  desktop: "桌面",
+  mobile: "手机",
 };
 
 function App() {
@@ -71,12 +88,11 @@ function App() {
   const [query, setQuery] = useState("");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [inputFilter, setInputFilter] = useState("all");
-  const [languageFilter, setLanguageFilter] = useState("all");
-  const [qualityFilter, setQualityFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [deviceFilter, setDeviceFilter] = useState("all");
+  const [creationFilter, setCreationFilter] = useState("all");
+  const [editorialTierFilter, setEditorialTierFilter] = useState("all");
   const [runtimeFilter, setRuntimeFilter] = useState("all");
-  const [sort, setSort] = useState("quality");
+  const [sort, setSort] = useState("editorial");
   const [visibleCount, setVisibleCount] = useState(pageSize);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -86,17 +102,16 @@ function App() {
   );
   const filterOptions = useMemo(() => ({
     categories: uniqueSorted(games.map((game) => game.category)),
-    languages: uniqueSorted(games.map((game) => game.language)),
-    qualities: uniqueSorted(
-      games.map((game) => game.quality),
-      (left, right) => (
-        (qualityOrder.get(left) ?? 99) - (qualityOrder.get(right) ?? 99)
-        || left.localeCompare(right)
-      ),
-    ),
     sources: uniqueSorted(games.map((game) => game.sourceTitle)),
-    statuses: uniqueSorted(games.map((game) => game.status)),
   }), []);
+  const showcaseCount = useMemo(
+    () => games.filter((game) => game.editorialTier === "showcase").length,
+    [],
+  );
+  const forkCount = useMemo(
+    () => new Set(games.map((game) => game.sourcePath)).size,
+    [],
+  );
 
   const filteredGames = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
@@ -104,10 +119,12 @@ function App() {
       .filter((game) => {
         if (sourceFilter !== "all" && game.sourceTitle !== sourceFilter) return false;
         if (categoryFilter !== "all" && game.category !== categoryFilter) return false;
-        if (inputFilter !== "all" && !game.inputs.includes(inputFilter)) return false;
-        if (languageFilter !== "all" && game.language !== languageFilter) return false;
-        if (qualityFilter !== "all" && game.quality !== qualityFilter) return false;
-        if (statusFilter !== "all" && game.status !== statusFilter) return false;
+        if (deviceFilter !== "all" && !game.devices.includes(deviceFilter)) return false;
+        if (creationFilter !== "all" && game.creationMethod !== creationFilter) return false;
+        if (
+          editorialTierFilter !== "all"
+          && game.editorialTier !== editorialTierFilter
+        ) return false;
         if (runtimeFilter !== "all" && game.runtime !== runtimeFilter) return false;
         if (!normalizedQuery) return true;
         return [
@@ -118,48 +135,54 @@ function App() {
           game.group,
           game.sourceTitle,
           game.technology,
+          game.runtimeNote,
+          game.creationNote,
           ...game.tags,
         ].some((value) => value.toLocaleLowerCase().includes(normalizedQuery));
       })
       .toSorted((left, right) => compareGames(left, right, sort));
   }, [
     categoryFilter,
-    inputFilter,
-    languageFilter,
-    qualityFilter,
+    creationFilter,
+    deviceFilter,
+    editorialTierFilter,
     query,
     runtimeFilter,
     sort,
     sourceFilter,
-    statusFilter,
   ]);
 
-  const visibleGames = filteredGames.slice(0, visibleCount);
-  const hasMore = visibleCount < filteredGames.length;
   const filtersActive = Boolean(
     query
     || sourceFilter !== "all"
     || categoryFilter !== "all"
-    || inputFilter !== "all"
-    || languageFilter !== "all"
-    || qualityFilter !== "all"
-    || statusFilter !== "all"
+    || deviceFilter !== "all"
+    || creationFilter !== "all"
+    || editorialTierFilter !== "all"
     || runtimeFilter !== "all"
-    || sort !== "quality",
+    || sort !== "editorial",
   );
+  const showcaseGames = filtersActive
+    ? []
+    : filteredGames.filter((game) => game.editorialTier === "showcase");
+  const catalogGames = filtersActive
+    ? filteredGames
+    : filteredGames.filter((game) => game.editorialTier !== "showcase");
+  const visibleGames = catalogGames.slice(0, visibleCount);
+  const hasMore = visibleCount < catalogGames.length;
+  const displayedCount = showcaseGames.length + visibleGames.length;
 
   useEffect(() => {
     setVisibleCount(pageSize);
   }, [
     categoryFilter,
-    inputFilter,
-    languageFilter,
-    qualityFilter,
+    creationFilter,
+    deviceFilter,
+    editorialTierFilter,
     query,
     runtimeFilter,
     sort,
     sourceFilter,
-    statusFilter,
   ]);
 
   useEffect(() => {
@@ -168,14 +191,14 @@ function App() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
-          setVisibleCount((count) => Math.min(count + pageSize, filteredGames.length));
+          setVisibleCount((count) => Math.min(count + pageSize, catalogGames.length));
         }
       },
       { rootMargin: "700px 0px" },
     );
     observer.observe(target);
     return () => observer.disconnect();
-  }, [filteredGames.length, hasMore]);
+  }, [catalogGames.length, hasMore]);
 
   const play = (game: Game) => {
     window.history.replaceState(null, "", `#play=${encodeURIComponent(game.id)}`);
@@ -192,12 +215,11 @@ function App() {
     setQuery("");
     setSourceFilter("all");
     setCategoryFilter("all");
-    setInputFilter("all");
-    setLanguageFilter("all");
-    setQualityFilter("all");
-    setStatusFilter("all");
+    setDeviceFilter("all");
+    setCreationFilter("all");
+    setEditorialTierFilter("all");
     setRuntimeFilter("all");
-    setSort("quality");
+    setSort("editorial");
   };
 
   if (playingGame) {
@@ -270,7 +292,9 @@ function App() {
           <span className="brand-mark" aria-hidden="true">OG</span>
           <div>
             <h1>Open Games</h1>
-            <p>{games.length} 款游戏 · {filterOptions.sources.length} 个源码来源</p>
+            <p>
+              {games.length} 款游戏 · {forkCount} 个源码 Fork · {showcaseCount} 款展示级
+            </p>
           </div>
         </div>
         <a
@@ -298,10 +322,16 @@ function App() {
             />
           </label>
           <FilterSelect
-            label="来源"
-            value={sourceFilter}
-            onChange={setSourceFilter}
-            options={filterOptions.sources.map((value) => ({ label: value, value }))}
+            label="分层"
+            value={editorialTierFilter}
+            onChange={setEditorialTierFilter}
+            options={[
+              { label: "展示级", value: "showcase" },
+              { label: "精选", value: "curated" },
+              { label: "完整目录", value: "catalog" },
+              { label: "上游缺陷", value: "degraded" },
+              { label: "归档", value: "archived" },
+            ]}
           />
           <FilterSelect
             label="类型"
@@ -310,42 +340,29 @@ function App() {
             options={filterOptions.categories.map((value) => ({ label: value, value }))}
           />
           <FilterSelect
-            label="操作"
-            value={inputFilter}
-            onChange={setInputFilter}
+            label="设备"
+            value={deviceFilter}
+            onChange={setDeviceFilter}
             options={[
-              { label: "触控", value: "touch" },
-              { label: "鼠标", value: "mouse" },
-              { label: "键盘", value: "keyboard" },
-              { label: "手柄", value: "gamepad" },
+              { label: "桌面", value: "desktop" },
+              { label: "手机", value: "mobile" },
             ]}
           />
           <FilterSelect
-            label="语言"
-            value={languageFilter}
-            onChange={setLanguageFilter}
-            options={filterOptions.languages.map((value) => ({
-              label: languageLabels[value] ?? value,
-              value,
-            }))}
+            label="创作"
+            value={creationFilter}
+            onChange={setCreationFilter}
+            options={[
+              { label: "Vibe Coding", value: "vibe-coded" },
+              { label: "AI 辅助", value: "ai-assisted" },
+              { label: "未披露", value: "not-disclosed" },
+            ]}
           />
           <FilterSelect
-            label="质量"
-            value={qualityFilter}
-            onChange={setQualityFilter}
-            options={filterOptions.qualities.map((value) => ({
-              label: qualityLabels[value] ?? value,
-              value,
-            }))}
-          />
-          <FilterSelect
-            label="状态"
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={filterOptions.statuses.map((value) => ({
-              label: statusLabels[value] ?? value,
-              value,
-            }))}
+            label="来源"
+            value={sourceFilter}
+            onChange={setSourceFilter}
+            options={filterOptions.sources.map((value) => ({ label: value, value }))}
           />
           <FilterSelect
             label="运行"
@@ -354,6 +371,7 @@ function App() {
             options={[
               { label: "离线可玩", value: "offline" },
               { label: "需要联网", value: "network" },
+              { label: "离线 / 联网混合", value: "hybrid" },
             ]}
           />
           <FilterSelect
@@ -362,10 +380,9 @@ function App() {
             onChange={setSort}
             includeAll={false}
             options={[
-              { label: "质量优先", value: "quality" },
+              { label: "编辑优先", value: "editorial" },
               { label: "名称", value: "title" },
               { label: "来源", value: "source" },
-              { label: "状态", value: "status" },
             ]}
           />
           <button
@@ -384,18 +401,45 @@ function App() {
           <strong>{filteredGames.length}</strong>
           <span>款符合条件</span>
           <span className="result-divider" aria-hidden="true" />
-          <span>{visibleGames.length} 款已显示</span>
+          <span>{displayedCount} 款已显示</span>
         </div>
 
-        {visibleGames.length > 0 ? (
-          <section className="game-grid" aria-label="游戏目录">
-            {visibleGames.map((game) => (
-              <GameCard game={game} key={game.id} onPlay={() => play(game)} />
-            ))}
+        {showcaseGames.length > 0 ? (
+          <section className="showcase-section" aria-labelledby="showcase-title">
+            <div className="section-heading">
+              <h2 id="showcase-title">精品先看</h2>
+              <span>{showcaseGames.length} 款</span>
+            </div>
+            <div className="showcase-grid">
+              {showcaseGames.map((game) => (
+                <GameCard
+                  game={game}
+                  key={game.id}
+                  onPlay={() => play(game)}
+                  variant="showcase"
+                />
+              ))}
+            </div>
           </section>
-        ) : (
+        ) : null}
+
+        {visibleGames.length > 0 ? (
+          <section className="catalog-results" aria-labelledby="catalog-title">
+            {!filtersActive ? (
+              <div className="section-heading catalog-heading">
+                <h2 id="catalog-title">完整目录</h2>
+                <span>{catalogGames.length} 款</span>
+              </div>
+            ) : null}
+            <div className="game-grid" aria-label={filtersActive ? "筛选结果" : "完整游戏目录"}>
+              {visibleGames.map((game) => (
+                <GameCard game={game} key={game.id} onPlay={() => play(game)} />
+              ))}
+            </div>
+          </section>
+        ) : showcaseGames.length === 0 ? (
           <p className="empty-results">没有符合当前条件的游戏。</p>
-        )}
+        ) : null}
         <div
           className="load-sentinel"
           ref={loadMoreRef}
@@ -408,12 +452,25 @@ function App() {
   );
 }
 
-function GameCard({ game, onPlay }: { game: Game; onPlay: () => void }) {
+function GameCard({
+  game,
+  onPlay,
+  variant = "catalog",
+}: {
+  game: Game;
+  onPlay: () => void;
+  variant?: "catalog" | "showcase";
+}) {
+  const isShowcase = variant === "showcase";
   const visibleTags = game.tags
     .filter((tag) => ![game.category, game.quality].includes(tag))
-    .slice(0, 3);
+    .slice(0, isShowcase ? 4 : 3);
   return (
-    <article className="game-card" data-game-id={game.id}>
+    <article
+      className={`game-card game-card-${variant}`}
+      data-editorial-tier={game.editorialTier}
+      data-game-id={game.id}
+    >
       <div className="cover-frame">
         <img
           alt={`${game.title} 游戏画面`}
@@ -421,18 +478,25 @@ function GameCard({ game, onPlay }: { game: Game; onPlay: () => void }) {
           loading="lazy"
           src={game.cover}
         />
-        <span className={`status-badge status-${game.status}`}>
-          {statusLabels[game.status] ?? game.status}
+        {game.status !== "active" ? (
+          <span className={`status-badge status-${game.status}`}>
+            {statusLabels[game.status] ?? game.status}
+          </span>
+        ) : null}
+        <span className={`tier-badge tier-${game.editorialTier}`}>
+          {editorialTierLabels[game.editorialTier] ?? game.editorialTier}
         </span>
-        <span className="quality-badge">
-          {qualityLabels[game.quality] ?? game.quality}
-        </span>
+        {isShowcase ? (
+          <span className={`performance-badge performance-${game.performance}`}>
+            {performanceLabels[game.performance] ?? game.performance}
+          </span>
+        ) : null}
       </div>
       <div className="card-body">
         <div className="card-heading">
           <div>
             <h2>{game.title}</h2>
-            <p>{game.sourceTitle}</p>
+            <p>{game.author} · {game.sourceTitle}</p>
           </div>
           <span className="technology">{game.technology}</span>
         </div>
@@ -440,9 +504,23 @@ function GameCard({ game, onPlay }: { game: Game; onPlay: () => void }) {
         <dl className="game-facts">
           <div><dt>类型</dt><dd>{game.category}</dd></div>
           <div><dt>操作</dt><dd>{game.input}</dd></div>
-          <div><dt>语言</dt><dd>{languageLabels[game.language] ?? game.language}</dd></div>
+          <div>
+            <dt>设备</dt>
+            <dd>{game.devices.map((device) => deviceLabels[device] ?? device).join(" / ")}</dd>
+          </div>
+          <div><dt>单局</dt><dd>{game.session}</dd></div>
+          <div>
+            <dt>创作</dt>
+            <dd>{creationMethodLabels[game.creationMethod] ?? game.creationMethod}</dd>
+          </div>
           <div><dt>运行</dt><dd>{runtimeLabels[game.runtime] ?? game.runtime}</dd></div>
         </dl>
+        {isShowcase ? (
+          <div className="card-notes">
+            <p><strong>创作说明</strong><span>{game.creationNote}</span></p>
+            <p><strong>联网边界</strong><span>{game.runtimeNote}</span></p>
+          </div>
+        ) : null}
         {visibleTags.length > 0 ? (
           <div className="tag-list" aria-label="游戏标签">
             {visibleTags.map((tag) => (
@@ -512,11 +590,9 @@ function compareGames(left: Game, right: Game, sort: string) {
     return left.sourceTitle.localeCompare(right.sourceTitle)
       || left.title.localeCompare(right.title);
   }
-  if (sort === "status") {
-    return left.status.localeCompare(right.status)
-      || left.title.localeCompare(right.title);
-  }
-  return (qualityOrder.get(left.quality) ?? 99) - (qualityOrder.get(right.quality) ?? 99)
+  return (editorialTierOrder.get(left.editorialTier) ?? 99)
+      - (editorialTierOrder.get(right.editorialTier) ?? 99)
+    || (qualityOrder.get(left.quality) ?? 99) - (qualityOrder.get(right.quality) ?? 99)
     || left.status.localeCompare(right.status)
     || left.title.localeCompare(right.title);
 }
