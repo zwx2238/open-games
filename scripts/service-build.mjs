@@ -9,14 +9,17 @@ import { build } from "esbuild";
 
 import { buildGodot3Html5 } from "./adapters/godot3-html5.mjs";
 import { buildLittleJsSingleHtml } from "./adapters/littlejs-single-html.mjs";
+import { buildNodeWebService } from "./adapters/node-web-service.mjs";
 import { buildRollupWeb } from "./adapters/rollup-web.mjs";
 import { buildStaticDirectory } from "./adapters/static-directory.mjs";
 import { buildStaticSingleHtml } from "./adapters/static-single-html.mjs";
 import { buildStaticSingleFile } from "./adapters/static-single-file.mjs";
 import { buildStaticKaplay } from "./adapters/static-kaplay.mjs";
 import { buildStaticRoot } from "./adapters/static-root.mjs";
+import { buildStaticSiteRoot } from "./adapters/static-site-root.mjs";
 import { buildViteSingleHtml } from "./adapters/vite-single-html.mjs";
 import { buildViteStatic } from "./adapters/vite-static.mjs";
+import { buildWebPackage } from "./adapters/web-package.mjs";
 import { ensureGeneratedCovers } from "./generate-covers.mjs";
 import { generateGamesCatalog } from "./generate-games.mjs";
 
@@ -31,14 +34,17 @@ const entryPoint = path.join(root, "service-src", "main.tsx");
 const adapters = new Map([
   ["godot3-html5", buildGodot3Html5],
   ["littlejs-single-html", buildLittleJsSingleHtml],
+  ["node-web-service", buildNodeWebService],
   ["rollup-web", buildRollupWeb],
   ["static-directory", buildStaticDirectory],
   ["static-single-html", buildStaticSingleHtml],
   ["static-single-file", buildStaticSingleFile],
   ["static-kaplay", buildStaticKaplay],
   ["static-root", buildStaticRoot],
+  ["static-site-root", buildStaticSiteRoot],
   ["vite-single-html", buildViteSingleHtml],
   ["vite-static", buildViteStatic],
+  ["web-package", buildWebPackage],
 ]);
 
 await execFileAsync("git", ["submodule", "update", "--init", "--recursive", "--checkout"], {
@@ -55,6 +61,7 @@ fs.mkdirSync(path.join(stagingDir, "covers"), { recursive: true });
 fs.mkdirSync(path.join(stagingDir, "notices"), { recursive: true });
 
 const builtGames = [];
+const serviceRuntimes = [];
 const copiedNotices = new Set();
 const commitsByGame = new Map();
 
@@ -84,13 +91,20 @@ try {
         if (!adapter) throw new Error(`unknown game adapter: ${game.adapter}`);
         const output = path.join(stagingDir, "games", game.id);
         fs.mkdirSync(output, { recursive: true });
-        await adapter({
+        const adapterResult = await adapter({
           game,
           output,
           outputRoot: stagingDir,
           source,
           worktree,
         });
+        if (adapterResult?.runtime) {
+          serviceRuntimes.push({
+            ...adapterResult.runtime,
+            commit,
+            sourceId: game.sourceId,
+          });
+        }
         if (game.coverSource) {
           copyAsset(
             worktree,
@@ -176,6 +190,7 @@ try {
     version: await gitOutput(root, ["rev-parse", "HEAD"]).catch(() => "uncommitted"),
     builtAt: new Date().toISOString(),
     games: builtGames,
+    runtimes: serviceRuntimes,
   };
   fs.writeFileSync(
     path.join(stagingDir, "manifest.json"),

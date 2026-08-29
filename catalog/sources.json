@@ -16,6 +16,13 @@
       "enabled": true
     },
     {
+      "id": "curated-forks",
+      "title": "Curated Forks",
+      "kind": "local-catalog",
+      "catalogPath": "catalog/curated-games.json",
+      "enabled": true
+    },
+    {
       "id": "100games",
       "title": "100 GAMES",
       "kind": "100games",

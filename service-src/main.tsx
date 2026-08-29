@@ -63,15 +63,16 @@ const runtimeLabels: Record<string, string> = {
   hybrid: "离线 / 联网混合",
 };
 
-const creationMethodLabels: Record<string, string> = {
-  "vibe-coded": "Vibe Coding",
-  "ai-assisted": "AI 辅助",
-  "not-disclosed": "未披露",
-};
-
 const performanceLabels: Record<string, string> = {
   standard: "普通设备",
   high: "较高性能",
+};
+
+const inputLabels: Record<string, string> = {
+  touch: "触控",
+  mouse: "鼠标",
+  keyboard: "键盘",
+  gamepad: "手柄",
 };
 
 const deviceLabels: Record<string, string> = {
@@ -89,7 +90,8 @@ function App() {
   const [sourceFilter, setSourceFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [deviceFilter, setDeviceFilter] = useState("all");
-  const [creationFilter, setCreationFilter] = useState("all");
+  const [inputFilter, setInputFilter] = useState("all");
+  const [performanceFilter, setPerformanceFilter] = useState("all");
   const [editorialTierFilter, setEditorialTierFilter] = useState("all");
   const [runtimeFilter, setRuntimeFilter] = useState("all");
   const [sort, setSort] = useState("editorial");
@@ -102,6 +104,7 @@ function App() {
   );
   const filterOptions = useMemo(() => ({
     categories: uniqueSorted(games.map((game) => game.category)),
+    inputs: uniqueSorted(games.flatMap((game) => game.inputs)),
     sources: uniqueSorted(games.map((game) => game.sourceTitle)),
   }), []);
   const showcaseCount = useMemo(
@@ -120,7 +123,8 @@ function App() {
         if (sourceFilter !== "all" && game.sourceTitle !== sourceFilter) return false;
         if (categoryFilter !== "all" && game.category !== categoryFilter) return false;
         if (deviceFilter !== "all" && !game.devices.includes(deviceFilter)) return false;
-        if (creationFilter !== "all" && game.creationMethod !== creationFilter) return false;
+        if (inputFilter !== "all" && !game.inputs.includes(inputFilter)) return false;
+        if (performanceFilter !== "all" && game.performance !== performanceFilter) return false;
         if (
           editorialTierFilter !== "all"
           && game.editorialTier !== editorialTierFilter
@@ -136,16 +140,16 @@ function App() {
           game.sourceTitle,
           game.technology,
           game.runtimeNote,
-          game.creationNote,
           ...game.tags,
         ].some((value) => value.toLocaleLowerCase().includes(normalizedQuery));
       })
       .toSorted((left, right) => compareGames(left, right, sort));
   }, [
     categoryFilter,
-    creationFilter,
     deviceFilter,
     editorialTierFilter,
+    inputFilter,
+    performanceFilter,
     query,
     runtimeFilter,
     sort,
@@ -157,7 +161,8 @@ function App() {
     || sourceFilter !== "all"
     || categoryFilter !== "all"
     || deviceFilter !== "all"
-    || creationFilter !== "all"
+    || inputFilter !== "all"
+    || performanceFilter !== "all"
     || editorialTierFilter !== "all"
     || runtimeFilter !== "all"
     || sort !== "editorial",
@@ -176,9 +181,10 @@ function App() {
     setVisibleCount(pageSize);
   }, [
     categoryFilter,
-    creationFilter,
     deviceFilter,
     editorialTierFilter,
+    inputFilter,
+    performanceFilter,
     query,
     runtimeFilter,
     sort,
@@ -216,7 +222,8 @@ function App() {
     setSourceFilter("all");
     setCategoryFilter("all");
     setDeviceFilter("all");
-    setCreationFilter("all");
+    setInputFilter("all");
+    setPerformanceFilter("all");
     setEditorialTierFilter("all");
     setRuntimeFilter("all");
     setSort("editorial");
@@ -275,11 +282,11 @@ function App() {
           ref={frameRef}
           className="game-frame"
           data-game-id={playingGame.id}
-          src={playingGame.entry}
+          src={gameEntryUrl(playingGame.entry)}
           title={playingGame.title}
           allow="autoplay; fullscreen; gamepad"
           referrerPolicy="no-referrer"
-          sandbox="allow-downloads allow-pointer-lock allow-same-origin allow-scripts"
+          sandbox="allow-downloads allow-pointer-lock allow-popups allow-same-origin allow-scripts"
         />
       </main>
     );
@@ -349,13 +356,21 @@ function App() {
             ]}
           />
           <FilterSelect
-            label="创作"
-            value={creationFilter}
-            onChange={setCreationFilter}
+            label="操作"
+            value={inputFilter}
+            onChange={setInputFilter}
+            options={filterOptions.inputs.map((value) => ({
+              label: inputLabels[value] ?? value,
+              value,
+            }))}
+          />
+          <FilterSelect
+            label="性能"
+            value={performanceFilter}
+            onChange={setPerformanceFilter}
             options={[
-              { label: "Vibe Coding", value: "vibe-coded" },
-              { label: "AI 辅助", value: "ai-assisted" },
-              { label: "未披露", value: "not-disclosed" },
+              { label: "普通设备", value: "standard" },
+              { label: "较高性能", value: "high" },
             ]}
           />
           <FilterSelect
@@ -509,16 +524,12 @@ function GameCard({
             <dd>{game.devices.map((device) => deviceLabels[device] ?? device).join(" / ")}</dd>
           </div>
           <div><dt>单局</dt><dd>{game.session}</dd></div>
-          <div>
-            <dt>创作</dt>
-            <dd>{creationMethodLabels[game.creationMethod] ?? game.creationMethod}</dd>
-          </div>
+          <div><dt>性能</dt><dd>{performanceLabels[game.performance] ?? game.performance}</dd></div>
           <div><dt>运行</dt><dd>{runtimeLabels[game.runtime] ?? game.runtime}</dd></div>
         </dl>
         {isShowcase ? (
           <div className="card-notes">
-            <p><strong>创作说明</strong><span>{game.creationNote}</span></p>
-            <p><strong>联网边界</strong><span>{game.runtimeNote}</span></p>
+            <p><strong>自部署</strong><span>{game.runtimeNote}</span></p>
           </div>
         ) : null}
         {visibleTags.length > 0 ? (
@@ -595,6 +606,12 @@ function compareGames(left: Game, right: Game, sort: string) {
     || (qualityOrder.get(left.quality) ?? 99) - (qualityOrder.get(right.quality) ?? 99)
     || left.status.localeCompare(right.status)
     || left.title.localeCompare(right.title);
+}
+
+function gameEntryUrl(entry: string) {
+  return entry.endsWith("/index.html")
+    ? entry.slice(0, -"index.html".length)
+    : entry;
 }
 
 function uniqueSorted(

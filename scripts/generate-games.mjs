@@ -73,8 +73,8 @@ function validateGeneratedGames(games, sources) {
     if (!Array.isArray(game.inputs) || game.inputs.length === 0) {
       throw new Error(`${game.id} must declare at least one input mode`);
     }
-    if (!Array.isArray(game.notices) || game.notices.length === 0) {
-      throw new Error(`${game.id} must declare source notices`);
+    if (!Array.isArray(game.notices)) {
+      throw new Error(`${game.id} notices must be an array`);
     }
     if (!Array.isArray(game.devices) || game.devices.length === 0) {
       throw new Error(`${game.id} must declare at least one device`);

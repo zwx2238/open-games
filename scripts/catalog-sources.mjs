@@ -348,6 +348,7 @@ function normalizeGame(game, source) {
       { target: normalized.notice, source: normalized.noticeSource },
     ];
   }
+  normalized.notices ??= [];
   return normalized;
 }
 

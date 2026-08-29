@@ -149,7 +149,7 @@ button {
   display: grid;
   grid-template-columns:
     minmax(240px, 1.8fr)
-    repeat(6, minmax(94px, 0.72fr))
+    repeat(7, minmax(94px, 0.72fr))
     minmax(96px, 0.75fr)
     36px;
   align-items: end;

@@ -46,6 +46,348 @@
 [submodule "games/apex-formula-2026"]
 	path = games/apex-formula-2026
 	url = https://github.com/zwx2238/apex-formula-2026.git
+	branch = open-games
+	shallow = true
 [submodule "games/browser-shooter"]
 	path = games/browser-shooter
 	url = https://github.com/zwx2238/browser-shooter.git
+[submodule "games/open-city"]
+	path = games/open-city
+	url = https://github.com/zwx2238/Gta-Clone.git
+	branch = open-games
+	shallow = true
+[submodule "games/cinder-ops"]
+	path = games/cinder-ops
+	url = https://github.com/zwx2238/cinder-ops.git
+	branch = open-games
+	shallow = true
+[submodule "games/horizon-racing"]
+	path = games/horizon-racing
+	url = https://github.com/zwx2238/horizon-racing.git
+	branch = open-games
+	shallow = true
+[submodule "games/ancient-beast"]
+	path = games/ancient-beast
+	url = https://github.com/zwx2238/AncientBeast.git
+	branch = open-games
+	shallow = true
+[submodule "games/bitburner"]
+	path = games/bitburner
+	url = https://github.com/zwx2238/bitburner-src.git
+	branch = open-games
+	shallow = true
+[submodule "games/emerald-bayou"]
+	path = games/emerald-bayou
+	url = https://github.com/zwx2238/emerald-bayou.git
+	branch = open-games
+	shallow = true
+[submodule "games/arcomage-hd"]
+	path = games/arcomage-hd
+	url = https://github.com/zwx2238/arcomage-hd.git
+	branch = open-games
+	shallow = true
+[submodule "games/bull-rush"]
+	path = games/bull-rush
+	url = https://github.com/zwx2238/bull-rush.git
+	branch = open-games
+	shallow = true
+[submodule "games/slashsaber"]
+	path = games/slashsaber
+	url = https://github.com/zwx2238/SlashSaber.git
+	branch = open-games
+	shallow = true
+[submodule "games/hexgl"]
+	path = games/hexgl
+	url = https://github.com/zwx2238/HexGL.git
+	branch = open-games
+	shallow = true
+[submodule "games/hextris"]
+	path = games/hextris
+	url = https://github.com/zwx2238/hextris.git
+	branch = open-games
+	shallow = true
+[submodule "games/cuberun"]
+	path = games/cuberun
+	url = https://github.com/zwx2238/cuberun.git
+	branch = open-games
+	shallow = true
+[submodule "games/sandboxels"]
+	path = games/sandboxels
+	url = https://github.com/zwx2238/sandboxels.git
+	branch = open-games
+	shallow = true
+[submodule "games/taoyuan"]
+	path = games/taoyuan
+	url = https://github.com/zwx2238/taoyuan.git
+	branch = open-games
+	shallow = true
+[submodule "games/synthblast"]
+	path = games/synthblast
+	url = https://github.com/zwx2238/SYNTHBLAST-threejs-game.git
+	branch = open-games
+	shallow = true
+[submodule "games/binding-of-isaac-webgame"]
+	path = games/binding-of-isaac-webgame
+	url = https://github.com/zwx2238/binding-of-isaac-webgame.git
+	branch = open-games
+	shallow = true
+[submodule "games/mykonos-island-voxels"]
+	path = games/mykonos-island-voxels
+	url = https://github.com/zwx2238/mykonos-island-voxels.git
+	branch = open-games
+	shallow = true
+[submodule "games/3d-city"]
+	path = games/3d-city
+	url = https://github.com/zwx2238/3d.city.git
+	branch = open-games
+	shallow = true
+[submodule "games/billiards"]
+	path = games/billiards
+	url = https://github.com/zwx2238/billiards.git
+	branch = open-games
+	shallow = true
+[submodule "games/the-last-pawn"]
+	path = games/the-last-pawn
+	url = https://github.com/zwx2238/the-last-pawn.git
+	branch = open-games
+	shallow = true
+[submodule "games/beachy-beachy-ball"]
+	path = games/beachy-beachy-ball
+	url = https://github.com/zwx2238/beachy-beachy-ball.git
+	branch = open-games
+	shallow = true
+[submodule "games/norman-the-necromancer"]
+	path = games/norman-the-necromancer
+	url = https://github.com/zwx2238/norman-the-necromancer.git
+	branch = open-games
+	shallow = true
+[submodule "games/redrock"]
+	path = games/redrock
+	url = https://github.com/zwx2238/redrock.git
+	branch = open-games
+	shallow = true
+[submodule "games/tokaido-pixel"]
+	path = games/tokaido-pixel
+	url = https://github.com/zwx2238/tokaido-pixel.git
+	branch = open-games
+	shallow = true
+[submodule "games/tower-of-time"]
+	path = games/tower-of-time
+	url = https://github.com/zwx2238/tower-of-time-game.git
+	branch = open-games
+	shallow = true
+[submodule "games/forest-census"]
+	path = games/forest-census
+	url = https://github.com/zwx2238/threejs-forest-census.git
+	branch = open-games
+	shallow = true
+[submodule "games/little-plane-project"]
+	path = games/little-plane-project
+	url = https://github.com/zwx2238/Little-Plane-Project.git
+	branch = open-games
+	shallow = true
+[submodule "games/adarkroom"]
+	path = games/adarkroom
+	url = https://github.com/zwx2238/adarkroom.git
+	branch = open-games
+	shallow = true
+[submodule "games/evolve"]
+	path = games/evolve
+	url = https://github.com/zwx2238/Evolve.git
+	branch = open-games
+	shallow = true
+[submodule "games/moon-rover"]
+	path = games/moon-rover
+	url = https://github.com/zwx2238/moon-rover.git
+	branch = open-games
+	shallow = true
+[submodule "games/hook-a-fish"]
+	path = games/hook-a-fish
+	url = https://github.com/zwx2238/hook-a-fish.git
+	branch = open-games
+	shallow = true
+[submodule "games/imperios"]
+	path = games/imperios
+	url = https://github.com/zwx2238/imperios-1800-2100.git
+	branch = open-games
+	shallow = true
+[submodule "games/backrooms-noclip"]
+	path = games/backrooms-noclip
+	url = https://github.com/zwx2238/backrooms-noclip.git
+	branch = open-games
+	shallow = true
+[submodule "games/slaytheweb"]
+	path = games/slaytheweb
+	url = https://github.com/zwx2238/slaytheweb.git
+	branch = open-games
+	shallow = true
+[submodule "games/birodalmak"]
+	path = games/birodalmak
+	url = https://github.com/zwx2238/birodalmak.git
+	branch = open-games
+	shallow = true
+[submodule "games/matchimals"]
+	path = games/matchimals
+	url = https://github.com/zwx2238/matchimals.fun.git
+	branch = open-games
+	shallow = true
+[submodule "games/business-tycoon"]
+	path = games/business-tycoon
+	url = https://github.com/zwx2238/business-tycoon.git
+	branch = open-games
+	shallow = true
+[submodule "games/gridland"]
+	path = games/gridland
+	url = https://github.com/zwx2238/gridland.git
+	branch = open-games
+	shallow = true
+[submodule "games/bounceback"]
+	path = games/bounceback
+	url = https://github.com/zwx2238/BounceBack.git
+	branch = open-games
+	shallow = true
+[submodule "games/vector-siege"]
+	path = games/vector-siege
+	url = https://github.com/zwx2238/vector-siege.git
+	branch = open-games
+	shallow = true
+[submodule "games/critical-window"]
+	path = games/critical-window
+	url = https://github.com/zwx2238/criticalwindow.git
+	branch = open-games
+	shallow = true
+[submodule "games/murmur"]
+	path = games/murmur
+	url = https://github.com/zwx2238/murmur.git
+	branch = open-games
+	shallow = true
+[submodule "games/catapult-blade"]
+	path = games/catapult-blade
+	url = https://github.com/zwx2238/Catapult-Blade.git
+	branch = open-games
+	shallow = true
+[submodule "games/red-panda-vibes"]
+	path = games/red-panda-vibes
+	url = https://github.com/zwx2238/red-panda-vibes.git
+	branch = open-games
+	shallow = true
+[submodule "games/armor-alley"]
+	path = games/armor-alley
+	url = https://github.com/zwx2238/ArmorAlley.git
+	branch = open-games
+	shallow = true
+[submodule "games/iron-tide"]
+	path = games/iron-tide
+	url = https://github.com/zwx2238/irontide.git
+	branch = open-games
+	shallow = true
+[submodule "games/wall-go"]
+	path = games/wall-go
+	url = https://github.com/zwx2238/wall-go.git
+	branch = open-games
+	shallow = true
+[submodule "games/rota"]
+	path = games/rota
+	url = https://github.com/zwx2238/ROTA.git
+	branch = open-games
+	shallow = true
+[submodule "games/claude-of-duty"]
+	path = games/claude-of-duty
+	url = https://github.com/zwx2238/Claude-of-Duty.git
+	branch = open-games
+	shallow = true
+[submodule "games/claude-of-tanks"]
+	path = games/claude-of-tanks
+	url = https://github.com/zwx2238/Claude-of-Tanks.git
+	branch = open-games
+	shallow = true
+[submodule "games/need-for-tokens"]
+	path = games/need-for-tokens
+	url = https://github.com/zwx2238/NeedForTokens.git
+	branch = open-games
+	shallow = true
+[submodule "games/simcity-web"]
+	path = games/simcity-web
+	url = https://github.com/zwx2238/simcity-web.git
+	branch = open-games
+	shallow = true
+[submodule "games/cosmos-journeyer"]
+	path = games/cosmos-journeyer
+	url = https://github.com/zwx2238/CosmosJourneyer.git
+	branch = open-games
+	shallow = true
+[submodule "games/awestruck"]
+	path = games/awestruck
+	url = https://github.com/zwx2238/awestruck.git
+	branch = open-games
+	shallow = true
+[submodule "games/pixel-fortress"]
+	path = games/pixel-fortress
+	url = https://github.com/zwx2238/pixel-fortress.git
+	branch = open-games
+	shallow = true
+[submodule "games/pokerogue"]
+	path = games/pokerogue
+	url = https://github.com/zwx2238/pokerogue.git
+	branch = open-games
+	shallow = true
+[submodule "games/pop-pop-popper"]
+	path = games/pop-pop-popper
+	url = https://github.com/zwx2238/pop-pop-popper.git
+	branch = open-games
+	shallow = true
+[submodule "games/flatland-td"]
+	path = games/flatland-td
+	url = https://github.com/zwx2238/KoalaTower.git
+	branch = open-games
+	shallow = true
+[submodule "games/pillage-first"]
+	path = games/pillage-first
+	url = https://github.com/zwx2238/Pillage-First-Ask-Questions-Later.git
+	branch = open-games
+	shallow = true
+[submodule "games/coro-solto"]
+	path = games/coro-solto
+	url = https://github.com/zwx2238/coro-solto.git
+	branch = open-games
+	shallow = true
+[submodule "games/sandspiel"]
+	path = games/sandspiel
+	url = https://github.com/zwx2238/sandspiel.git
+	branch = open-games
+	shallow = true
+[submodule "games/kiro-man"]
+	path = games/kiro-man
+	url = https://github.com/zwx2238/kiro-man.git
+	branch = open-games
+	shallow = true
+[submodule "games/deton8"]
+	path = games/deton8
+	url = https://github.com/zwx2238/deton8.git
+	branch = open-games
+	shallow = true
+[submodule "games/neon-dash"]
+	path = games/neon-dash
+	url = https://github.com/zwx2238/neon-dash.git
+	branch = open-games
+	shallow = true
+[submodule "games/gamenest"]
+	path = games/gamenest
+	url = https://github.com/zwx2238/GameNest.git
+	branch = open-games
+	shallow = true
+[submodule "games/escape-run"]
+	path = games/escape-run
+	url = https://github.com/zwx2238/escape-run.git
+	branch = open-games
+	shallow = true
+[submodule "games/dungeon-of-souls"]
+	path = games/dungeon-of-souls
+	url = https://github.com/zwx2238/Dungeon-of-Souls.git
+	branch = open-games
+	shallow = true
+[submodule "games/the-runed-deep"]
+	path = games/the-runed-deep
+	url = https://github.com/zwx2238/The-Runed-Deep.git
+	branch = open-games
+	shallow = true

@@ -42,6 +42,24 @@ export type Game = {
   collectionNumber?: number;
   runtimeFiles?: string[];
   runtimeDirectories?: string[];
+  runtimeExclude?: string[];
+  packageManager?: "npm" | "pnpm" | "bun" | "yarn";
+  packageSubpath?: string;
+  serviceEntry?: "server.js" | "server.mjs" | "server.cjs";
+  serviceRuntimeFiles?: string[];
+  serviceRuntimeDirectories?: string[];
+  serviceStaticRoot?: "public";
+  buildOutput?:
+    | ".app"
+    | "build"
+    | "client/dist"
+    | "deploy"
+    | "dist"
+    | "dist/client"
+    | "docs"
+    | "out"
+    | "packages/game/dist"
+    | "public";
 };
 
 export const games = gamesData as Game[];

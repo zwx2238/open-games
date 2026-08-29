@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
+import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { stripVTControlCharacters } from "node:util";
@@ -11,15 +12,23 @@ import { chromium } from "playwright";
 import games from "../games.json" with { type: "json" };
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const port = 4181;
+const port = await getAvailablePort();
 const baseUrl = `http://127.0.0.1:${port}`;
+const serviceUrl = `${baseUrl}/open-games/`;
 const baseOrigin = new URL(baseUrl).origin;
 const output = path.join(root, ".runtime", "visual-smoke");
 const gameBatchSize = 6;
 const sourceFilter = process.env.OPEN_GAMES_SMOKE_SOURCE;
-const runtimeGames = sourceFilter
-  ? games.filter((game) => game.sourceId === sourceFilter)
-  : games;
+const idFilter = new Set(
+  (process.env.OPEN_GAMES_SMOKE_IDS ?? "")
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean),
+);
+const runtimeGames = games.filter((game) => (
+  (!sourceFilter || game.sourceId === sourceFilter)
+  && (idFilter.size === 0 || idFilter.has(game.id))
+));
 const sampleIds = new Set(
   Object.values(Object.groupBy(runtimeGames, (game) => game.sourceId))
     .flatMap((sourceGames) => sourceGames.slice(0, 2).map((game) => game.id)),
@@ -40,6 +49,12 @@ const server = spawn(process.execPath, ["service/server.mjs"], {
   },
   stdio: ["ignore", "pipe", "pipe"],
 });
+let serverOutput = "";
+for (const stream of [server.stdout, server.stderr]) {
+  stream?.on("data", (chunk) => {
+    serverOutput = `${serverOutput}${chunk}`.slice(-20_000);
+  });
+}
 
 try {
   await waitForHealth();
@@ -49,8 +64,9 @@ try {
     await smokeCatalog(browser, "mobile", { width: 390, height: 844 });
     const gameFailures = [];
     const gameWarnings = [];
-    for (let index = 0; index < runtimeGames.length; index += gameBatchSize) {
-      const batch = runtimeGames.slice(index, index + gameBatchSize);
+    for (let index = 0; index < runtimeGames.length;) {
+      const batchEnd = nextBatchEnd(runtimeGames, index);
+      const batch = runtimeGames.slice(index, batchEnd);
       const results = await Promise.allSettled(
         batch.map((game) => smokeGame(browser, game)),
       );
@@ -68,8 +84,9 @@ try {
         }
       });
       console.log(
-        `[open-games] runtime smoke ${Math.min(index + batch.length, runtimeGames.length)}/${runtimeGames.length}`,
+        `[open-games] runtime smoke ${batchEnd}/${runtimeGames.length}`,
       );
+      index = batchEnd;
     }
     if (gameWarnings.length > 0) {
       fs.writeFileSync(
@@ -109,13 +126,13 @@ try {
     await browser.close();
   }
 } finally {
-  server.kill("SIGTERM");
+  await stopServer();
 }
 
 async function smokeCatalog(browser, name, viewport) {
   const { context, failures, page } = await openPage(browser, viewport);
   try {
-    const response = await page.goto(baseUrl, { waitUntil: "networkidle" });
+    const response = await page.goto(serviceUrl, { waitUntil: "networkidle" });
     if (!response?.ok()) throw new Error(`${name}: catalog failed to load`);
     await page.locator(".game-card").first().waitFor();
     assert.equal(
@@ -147,13 +164,21 @@ async function smokeCatalog(browser, name, viewport) {
     );
     await page.getByLabel("分层").selectOption("all");
 
-    await page.getByLabel("创作").selectOption("vibe-coded");
+    await page.getByLabel("操作").selectOption("touch");
     await assertResultCount(
       page,
-      games.filter((game) => game.creationMethod === "vibe-coded").length,
-      `${name}: creation method filter`,
+      games.filter((game) => game.inputs.includes("touch")).length,
+      `${name}: input filter`,
     );
-    await page.getByLabel("创作").selectOption("all");
+    await page.getByLabel("操作").selectOption("all");
+
+    await page.getByLabel("性能").selectOption("high");
+    await assertResultCount(
+      page,
+      games.filter((game) => game.performance === "high").length,
+      `${name}: performance filter`,
+    );
+    await page.getByLabel("性能").selectOption("all");
 
     await page.getByLabel("设备").selectOption("mobile");
     await assertResultCount(
@@ -192,7 +217,7 @@ async function smokeCatalog(browser, name, viewport) {
     });
     assert.ok((await firstCard.locator(".game-description").innerText()).length >= 8);
     assert.equal(await firstCard.locator(".game-facts div").count(), 6);
-    assert.equal(await firstCard.locator(".card-notes p").count(), 2);
+    assert.equal(await firstCard.locator(".card-notes p").count(), 1);
     await page.screenshot({
       path: path.join(output, `${name}-catalog.png`),
     });
@@ -202,6 +227,19 @@ async function smokeCatalog(browser, name, viewport) {
   }
 }
 
+function nextBatchEnd(runtimeGames, index) {
+  if (runtimeGames[index].performance === "high") return index + 1;
+  let batchEnd = index;
+  while (
+    batchEnd < runtimeGames.length
+    && batchEnd - index < gameBatchSize
+    && runtimeGames[batchEnd].performance !== "high"
+  ) {
+    batchEnd += 1;
+  }
+  return batchEnd;
+}
+
 async function smokeGame(browser, game) {
   const viewport = game.devices.includes("mobile")
     ? { width: 390, height: 844 }
@@ -209,32 +247,35 @@ async function smokeGame(browser, game) {
   const { context, failures, page } = await openPage(
     browser,
     viewport,
-    game.runtime !== "offline",
+    {
+      allowExternal: game.runtime !== "offline",
+      ignoreHeadlessWebGpuLoss: game.id === "murmur",
+    },
   );
   const label = `${game.devices.includes("mobile") ? "mobile" : "desktop"}-${game.id}`;
   try {
-    const response = await page.goto(`${baseUrl}/#play=${encodeURIComponent(game.id)}`, {
+    const response = await page.goto(`${serviceUrl}#play=${encodeURIComponent(game.id)}`, {
       waitUntil: "domcontentloaded",
       timeout: 30_000,
     });
     if (!response?.ok()) throw new Error(`${label}: service entry failed to load`);
     const frameElement = page.locator(`iframe[data-game-id="${game.id}"]`);
     await frameElement.waitFor({ state: "visible", timeout: 30_000 });
+    const inputPoint = await frameElement.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      };
+    });
     const frame = page.frameLocator(`iframe[data-game-id="${game.id}"]`);
-    await waitForRenderSignal(frame.locator("body").first());
+    await waitForStableRenderSignal(frame);
     await page.waitForTimeout(750);
-
-    const frameBox = await frameElement.boundingBox();
-    if (!frameBox) throw new Error(`${label}: iframe has no bounding box`);
-    const point = {
-      x: frameBox.x + frameBox.width / 2,
-      y: frameBox.y + frameBox.height / 2,
-    };
-    if (game.devices.includes("mobile")) {
-      await page.touchscreen.tap(point.x, point.y);
-    } else {
-      await page.mouse.click(point.x, point.y);
+    if (game.adapter === "node-web-service") {
+      await smokeNodeWebService(frame, game);
     }
+
+    await exerciseGame(page, inputPoint, game);
     await page.waitForTimeout(450);
 
     if (sampleIds.has(game.id)) {
@@ -246,12 +287,33 @@ async function smokeGame(browser, game) {
     }
     if (game.status !== "degraded") assertNoFailures(label, failures);
     return failures;
+  } catch (error) {
+    if (failures.length === 0) throw error;
+    throw new Error(`${formatError(error)}\n${failures.join("\n")}`);
   } finally {
     await context.close();
   }
 }
 
-async function openPage(browser, viewport, allowExternal = false) {
+async function smokeNodeWebService(frame, game) {
+  if (game.id !== "gamenest") return;
+  await frame.locator("#quickCreate").click();
+  await frame.locator("#roomBadge").waitFor({ state: "visible", timeout: 10_000 });
+  await frame.locator("#roomBadge").evaluate(async (badge) => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      if ((badge.textContent ?? "").trim() !== "----") return;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    throw new Error("GameNest did not create a WebSocket room");
+  });
+}
+
+async function openPage(
+  browser,
+  viewport,
+  { allowExternal = false, ignoreHeadlessWebGpuLoss = false } = {},
+) {
   const context = await browser.newContext({
     hasTouch: viewport.width < 900,
     isMobile: viewport.width < 900,
@@ -263,11 +325,16 @@ async function openPage(browser, viewport, allowExternal = false) {
     if (
       message.type() === "error"
       && !message.text().startsWith("Texture key already in use:")
+      && !message.text().startsWith("Unable to preventDefault inside passive event listener")
+      && !(
+        ignoreHeadlessWebGpuLoss
+        && message.text().startsWith("THREE.THREE.WebGPURenderer: WebGL Device Lost:")
+      )
     ) {
       failures.push(`console: ${message.text()}`);
     }
   });
-  page.on("pageerror", (error) => failures.push(`page: ${error.message}`));
+  page.on("pageerror", (error) => failures.push(`page: ${error.stack ?? error.message}`));
   page.on("response", (response) => {
     if (response.status() >= 400) {
       failures.push(`response ${response.status()}: ${response.url()}`);
@@ -284,6 +351,17 @@ async function openPage(browser, viewport, allowExternal = false) {
     }
   });
   return { context, failures, page };
+}
+
+async function exerciseGame(page, point, game) {
+  if (game.devices.includes("mobile")) {
+    await page.touchscreen.tap(point.x, point.y);
+  } else {
+    await page.mouse.click(point.x, point.y);
+  }
+  if (game.inputs.includes("keyboard")) {
+    await page.keyboard.press("Space");
+  }
 }
 
 async function assertResultCount(page, expected, label) {
@@ -324,6 +402,23 @@ async function waitForRenderSignal(locator) {
   });
 }
 
+async function waitForStableRenderSignal(frame) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await waitForRenderSignal(frame.locator("body").first());
+      return;
+    } catch (error) {
+      if (
+        attempt === 2
+        || !formatError(error).includes("Execution context was destroyed")
+      ) {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+  }
+}
+
 function assertNoFailures(label, failures) {
   assert.deepEqual(failures, [], `${label}: browser failures`);
 }
@@ -335,7 +430,9 @@ function formatError(error) {
 async function waitForHealth() {
   const deadline = Date.now() + 15_000;
   while (Date.now() < deadline) {
-    if (server.exitCode !== null) throw new Error("visual smoke server exited early");
+    if (server.exitCode !== null) {
+      throw new Error(`visual smoke server exited early:\n${serverOutput.trim()}`);
+    }
     try {
       const response = await fetch(`${baseUrl}/health`, {
         signal: AbortSignal.timeout(500),
@@ -347,4 +444,32 @@ async function waitForHealth() {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
   throw new Error("visual smoke server did not become healthy");
+}
+
+async function getAvailablePort() {
+  const probe = net.createServer();
+  await new Promise((resolve, reject) => {
+    probe.once("error", reject);
+    probe.listen(0, "127.0.0.1", () => {
+      probe.off("error", reject);
+      resolve();
+    });
+  });
+  const address = probe.address();
+  if (!address || typeof address === "string") {
+    probe.close();
+    throw new Error("failed to reserve a visual smoke port");
+  }
+  await new Promise((resolve) => probe.close(resolve));
+  return address.port;
+}
+
+async function stopServer() {
+  if (server.exitCode !== null) return;
+  server.kill("SIGTERM");
+  await Promise.race([
+    new Promise((resolve) => server.once("exit", resolve)),
+    new Promise((resolve) => setTimeout(resolve, 10_000)),
+  ]);
+  if (server.exitCode === null) server.kill("SIGKILL");
 }

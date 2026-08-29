@@ -14,12 +14,27 @@ const forbiddenSegments = new Set([
 ]);
 
 export async function buildStaticRoot({ game, output, worktree }) {
-  const files = validateRuntimeEntries(game.runtimeFiles, `${game.id} runtimeFiles`);
+  copyReviewedRuntimeEntries({ game, output, worktree, requireIndex: true });
+  requireFile(path.join(output, "index.html"));
+}
+
+export function copyReviewedRuntimeEntries({
+  game,
+  output,
+  worktree,
+  requireIndex = false,
+}) {
+  const files = validateRuntimeEntries(
+    game.runtimeFiles ?? [],
+    `${game.id} runtimeFiles`,
+    !requireIndex,
+  );
   const directories = validateRuntimeEntries(
     game.runtimeDirectories ?? [],
     `${game.id} runtimeDirectories`,
+    true,
   );
-  if (!files.includes("index.html")) {
+  if (requireIndex && !files.includes("index.html")) {
     throw new Error(`${game.id} static-root runtimeFiles must include index.html`);
   }
   rejectOverlappingEntries(game.id, files, directories);
@@ -41,8 +56,6 @@ export async function buildStaticRoot({ game, output, worktree }) {
     }
     copyDirectory(source, path.join(output, relativeDirectory));
   }
-
-  requireFile(path.join(output, "index.html"));
 }
 
 export function validateRuntimePath(value, label = "runtime path") {
@@ -66,9 +79,9 @@ export function validateRuntimePath(value, label = "runtime path") {
   return value;
 }
 
-function validateRuntimeEntries(value, label) {
-  if (!Array.isArray(value) || value.length === 0) {
-    throw new Error(`${label} must be a non-empty array`);
+function validateRuntimeEntries(value, label, allowEmpty = false) {
+  if (!Array.isArray(value) || (!allowEmpty && value.length === 0)) {
+    throw new Error(`${label} must be ${allowEmpty ? "an" : "a non-empty"} array`);
   }
   const entries = value.map((entry, index) => validateRuntimePath(entry, `${label}[${index}]`));
   if (new Set(entries).size !== entries.length) {
