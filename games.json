@@ -31,13 +31,11 @@
     "license": "Apache-2.0",
     "edition": "Offline self-hosted fork",
     "inputs": [
-      "touch",
       "mouse",
       "keyboard"
     ],
     "devices": [
-      "desktop",
-      "mobile"
+      "desktop"
     ],
     "session": "15-90 min",
     "category": "开放世界",
@@ -63,7 +61,7 @@
     "featured": true,
     "sourceId": "showcase-forks",
     "sourceTitle": "Showcase Forks",
-    "input": "触控 / 鼠标 / 键盘",
+    "input": "鼠标 / 键盘",
     "contentTags": []
   },
   {
