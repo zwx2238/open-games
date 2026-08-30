@@ -9,9 +9,8 @@
     "defaultPort": 3981
   },
   "scripts": {
-    "service-sdk:build": "pnpm --dir node_modules/@local-agent-bridge/embedded-service-sdk run build && pnpm --dir node_modules/@local-agent-bridge/node-sidecar-runtime run build",
     "catalog:generate": "node scripts/generate-games.mjs",
-    "service:build": "pnpm run service-sdk:build && node scripts/service-build.mjs",
+    "service:build": "node scripts/service-build.mjs",
     "service:serve": "node service/server.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node scripts/test.mjs",
@@ -24,8 +23,8 @@
     "pnpm": ">=9"
   },
   "dependencies": {
-    "@local-agent-bridge/embedded-service-sdk": "link:../service-sdk/packages/embedded-service-sdk",
-    "@local-agent-bridge/node-sidecar-runtime": "link:../service-sdk/packages/node-sidecar-runtime",
+    "@local-agent-bridge/embedded-service-sdk": "git+ssh://git@gitee.com/wen_xiang_zou_admin/local-agent-bridge-service-sdk.git#181913254b68eaae6d72ac54e73feceda41ff362&path:packages/embedded-service-sdk",
+    "@local-agent-bridge/node-sidecar-runtime": "git+ssh://git@gitee.com/wen_xiang_zou_admin/local-agent-bridge-service-sdk.git#181913254b68eaae6d72ac54e73feceda41ff362&path:packages/node-sidecar-runtime",
     "http-proxy": "^1.18.1",
     "lucide-react": "^1.16.0",
     "react": "^19.2.6",
@@ -40,5 +39,11 @@
     "playwright": "^1.62.1",
     "typescript": "7.0.2"
   },
-  "packageManager": "pnpm@10.33.0"
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@local-agent-bridge/embedded-service-sdk",
+      "@local-agent-bridge/node-sidecar-runtime"
+    ]
+  }
 }

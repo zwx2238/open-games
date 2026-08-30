@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@local-agent-bridge/embedded-service-sdk':
-        specifier: link:../service-sdk/packages/embedded-service-sdk
-        version: link:../service-sdk/packages/embedded-service-sdk
+        specifier: git+ssh://git@gitee.com/wen_xiang_zou_admin/local-agent-bridge-service-sdk.git#181913254b68eaae6d72ac54e73feceda41ff362&path:packages/embedded-service-sdk
+        version: git+ssh://git@gitee.com/wen_xiang_zou_admin/local-agent-bridge-service-sdk.git#181913254b68eaae6d72ac54e73feceda41ff362&path:packages/embedded-service-sdk
       '@local-agent-bridge/node-sidecar-runtime':
-        specifier: link:../service-sdk/packages/node-sidecar-runtime
-        version: link:../service-sdk/packages/node-sidecar-runtime
+        specifier: git+ssh://git@gitee.com/wen_xiang_zou_admin/local-agent-bridge-service-sdk.git#181913254b68eaae6d72ac54e73feceda41ff362&path:packages/node-sidecar-runtime
+        version: git+ssh://git@gitee.com/wen_xiang_zou_admin/local-agent-bridge-service-sdk.git#181913254b68eaae6d72ac54e73feceda41ff362&path:packages/node-sidecar-runtime
       http-proxy:
         specifier: ^1.18.1
         version: 1.18.1
@@ -206,6 +206,16 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@local-agent-bridge/embedded-service-sdk@git+ssh://git@gitee.com/wen_xiang_zou_admin/local-agent-bridge-service-sdk.git#181913254b68eaae6d72ac54e73feceda41ff362&path:packages/embedded-service-sdk':
+    resolution: {commit: 181913254b68eaae6d72ac54e73feceda41ff362, path: packages/embedded-service-sdk, repo: ssh://git@gitee.com/wen_xiang_zou_admin/local-agent-bridge-service-sdk.git, type: git}
+    version: 0.1.0
+    engines: {node: '>=24'}
+
+  '@local-agent-bridge/node-sidecar-runtime@git+ssh://git@gitee.com/wen_xiang_zou_admin/local-agent-bridge-service-sdk.git#181913254b68eaae6d72ac54e73feceda41ff362&path:packages/node-sidecar-runtime':
+    resolution: {commit: 181913254b68eaae6d72ac54e73feceda41ff362, path: packages/node-sidecar-runtime, repo: ssh://git@gitee.com/wen_xiang_zou_admin/local-agent-bridge-service-sdk.git, type: git}
+    version: 0.1.0
+    engines: {node: '>=24'}
 
   '@types/http-proxy@1.17.17':
     resolution: {integrity: sha512-ED6LB+Z1AVylNTu7hdzuBqOgMnvG/ld6wGCG8wFnAzKX5uyW2K3WD52v0gnLCTK/VLpXtKckgWuyScYK6cSPaw==}
@@ -487,6 +497,10 @@ snapshots:
 
   '@esbuild/win32-x64@0.25.12':
     optional: true
+
+  '@local-agent-bridge/embedded-service-sdk@git+ssh://git@gitee.com/wen_xiang_zou_admin/local-agent-bridge-service-sdk.git#181913254b68eaae6d72ac54e73feceda41ff362&path:packages/embedded-service-sdk': {}
+
+  '@local-agent-bridge/node-sidecar-runtime@git+ssh://git@gitee.com/wen_xiang_zou_admin/local-agent-bridge-service-sdk.git#181913254b68eaae6d72ac54e73feceda41ff362&path:packages/node-sidecar-runtime': {}
 
   '@types/http-proxy@1.17.17':
     dependencies:
