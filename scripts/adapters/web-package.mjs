@@ -112,7 +112,7 @@ export function validateBuildBasePath(value, gameId) {
     throw new Error(`${gameId} buildBasePath must be ./ or an absolute URL path`);
   }
   const normalized = value.replace(/\/+$/, "");
-  const expected = `/open-games/games/${gameId}`;
+  const expected = `/services/open-games/games/${gameId}`;
   if (normalized !== expected) {
     throw new Error(`${gameId} buildBasePath must be ./ or ${expected}`);
   }

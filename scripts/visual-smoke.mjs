@@ -218,9 +218,7 @@ async function smokeCatalog(browser, name, viewport) {
     assert.ok((await firstCard.locator(".game-description").innerText()).length >= 8);
     assert.equal(await firstCard.locator(".game-facts div").count(), 6);
     assert.equal(await firstCard.locator(".card-notes p").count(), 1);
-    await page.screenshot({
-      path: path.join(output, `${name}-catalog.png`),
-    });
+    await captureScreenshot(page, path.join(output, `${name}-catalog.png`));
     assertNoFailures(name, failures);
   } finally {
     await context.close();
@@ -279,9 +277,8 @@ async function smokeGame(browser, game) {
     await page.waitForTimeout(450);
 
     if (sampleIds.has(game.id)) {
-      await page.screenshot({
-        path: path.join(output, `${label}.jpg`),
-        type: "jpeg",
+      await captureScreenshot(page, path.join(output, `${label}.jpg`), {
+        format: "jpeg",
         quality: 72,
       });
     }
@@ -425,6 +422,45 @@ function assertNoFailures(label, failures) {
 
 function formatError(error) {
   return stripVTControlCharacters(error instanceof Error ? error.message : String(error));
+}
+
+async function captureScreenshot(page, outputPath, {
+  format = "png",
+  quality,
+} = {}) {
+  const session = await page.context().newCDPSession(page);
+  try {
+    const result = await withTimeout(
+      session.send("Page.captureScreenshot", {
+        captureBeyondViewport: false,
+        format,
+        ...(quality === undefined ? {} : { quality }),
+      }),
+      30_000,
+      "CDP screenshot timed out",
+    );
+    fs.writeFileSync(outputPath, Buffer.from(result.data, "base64"));
+  } finally {
+    await withTimeout(
+      session.detach(),
+      5_000,
+      "CDP detach timed out",
+    ).catch(() => {});
+  }
+}
+
+async function withTimeout(promise, timeoutMs, message) {
+  let timer;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 async function waitForHealth() {

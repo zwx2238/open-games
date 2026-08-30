@@ -244,11 +244,11 @@ test("web-package adapter only accepts reviewed build scripts and outputs", () =
   );
   assert.equal(validateBuildBasePath("./", "fixture"), "./");
   assert.equal(
-    validateBuildBasePath("/open-games/games/fixture/", "fixture"),
-    "/open-games/games/fixture",
+    validateBuildBasePath("/services/open-games/games/fixture/", "fixture"),
+    "/services/open-games/games/fixture",
   );
   assert.throws(
-    () => validateBuildBasePath("/services/open-games/games/fixture", "fixture"),
+    () => validateBuildBasePath("/open-games/games/fixture", "fixture"),
     /fixture buildBasePath must be/,
   );
 });
