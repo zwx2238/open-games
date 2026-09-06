@@ -148,6 +148,7 @@ async function smokeCatalog(browser, name, viewport) {
     await page.getByText(`${games.length} 款游戏`, { exact: false }).waitFor();
     await assertResultCount(page, games.length, `${name}: all games`);
 
+    await page.getByRole("button", { name: "筛选" }).click();
     await page.getByLabel("来源").selectOption({ label: "Mini Browser Games" });
     await assertResultCount(
       page,

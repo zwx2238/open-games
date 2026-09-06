@@ -7,6 +7,8 @@ import {
   Play,
   RotateCcw,
   Search,
+  ChevronDown,
+  SlidersHorizontal,
 } from "lucide-react";
 import {
   StrictMode,
@@ -95,6 +97,7 @@ function App() {
   const [editorialTierFilter, setEditorialTierFilter] = useState("all");
   const [runtimeFilter, setRuntimeFilter] = useState("all");
   const [sort, setSort] = useState("editorial");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(pageSize);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -229,6 +232,56 @@ function App() {
     setSort("editorial");
   };
 
+  const sortLabels: Record<string, string> = {
+    editorial: "编辑优先",
+    source: "来源",
+    title: "名称",
+  };
+  const activeFilterChips = [
+    query.trim()
+      ? { clear: () => setQuery(""), label: `搜索 ${query.trim()}` }
+      : null,
+    editorialTierFilter !== "all"
+      ? {
+          clear: () => setEditorialTierFilter("all"),
+          label: `分层 ${editorialTierLabels[editorialTierFilter] ?? editorialTierFilter}`,
+        }
+      : null,
+    categoryFilter !== "all"
+      ? { clear: () => setCategoryFilter("all"), label: `类型 ${categoryFilter}` }
+      : null,
+    deviceFilter !== "all"
+      ? {
+          clear: () => setDeviceFilter("all"),
+          label: `设备 ${deviceLabels[deviceFilter] ?? deviceFilter}`,
+        }
+      : null,
+    inputFilter !== "all"
+      ? {
+          clear: () => setInputFilter("all"),
+          label: `操作 ${inputLabels[inputFilter] ?? inputFilter}`,
+        }
+      : null,
+    performanceFilter !== "all"
+      ? {
+          clear: () => setPerformanceFilter("all"),
+          label: `性能 ${performanceLabels[performanceFilter] ?? performanceFilter}`,
+        }
+      : null,
+    sourceFilter !== "all"
+      ? { clear: () => setSourceFilter("all"), label: `来源 ${sourceFilter}` }
+      : null,
+    runtimeFilter !== "all"
+      ? {
+          clear: () => setRuntimeFilter("all"),
+          label: `运行 ${runtimeLabels[runtimeFilter] ?? runtimeFilter}`,
+        }
+      : null,
+    sort !== "editorial"
+      ? { clear: () => setSort("editorial"), label: `排序 ${sortLabels[sort] ?? sort}` }
+      : null,
+  ].filter(Boolean) as Array<{ clear: () => void; label: string }>;
+
   if (playingGame) {
     return (
       <main className="player-shell">
@@ -328,6 +381,49 @@ function App() {
               value={query}
             />
           </label>
+          <button
+            aria-controls="catalog-filters"
+            aria-expanded={filtersOpen}
+            className="filter-toggle"
+            onClick={() => setFiltersOpen((open) => !open)}
+            type="button"
+          >
+            <SlidersHorizontal aria-hidden="true" size={15} />
+            <span>筛选</span>
+            {activeFilterChips.length > 0 ? (
+              <span className="filter-toggle-count">{activeFilterChips.length}</span>
+            ) : null}
+            <ChevronDown aria-hidden="true" className="filter-toggle-chevron" size={14} />
+          </button>
+          <button
+            className="icon-button reset-button"
+            disabled={!filtersActive}
+            onClick={clearFilters}
+            title="清除筛选"
+            aria-label="清除筛选"
+            type="button"
+          >
+            <RotateCcw size={17} />
+          </button>
+          {activeFilterChips.length > 0 ? (
+            <div aria-label="当前筛选" className="filter-chips">
+              {activeFilterChips.map((chip) => (
+                <button
+                  className="filter-chip"
+                  key={chip.label}
+                  onClick={chip.clear}
+                  title={`清除：${chip.label}`}
+                  type="button"
+                >
+                  <span>{chip.label}</span>
+                  <span aria-hidden="true">×</span>
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="filter-details" hidden={!filtersOpen} id="catalog-filters">
           <FilterSelect
             label="分层"
             value={editorialTierFilter}
@@ -400,16 +496,6 @@ function App() {
               { label: "来源", value: "source" },
             ]}
           />
-          <button
-            className="icon-button reset-button"
-            disabled={!filtersActive}
-            onClick={clearFilters}
-            title="清除筛选"
-            aria-label="清除筛选"
-            type="button"
-          >
-            <RotateCcw size={17} />
-          </button>
         </div>
 
         <div className="result-line">
