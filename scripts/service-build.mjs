@@ -52,21 +52,37 @@ await execFileAsync("git", ["submodule", "update", "--init", "--recursive", "--c
   maxBuffer: 16 * 1024 * 1024,
 });
 const games = generateGamesCatalog();
+const uiOnly = process.env.OPEN_GAMES_UI_ONLY === "1";
+const cached = uiOnly ? JSON.parse(fs.readFileSync(path.join(outdir, "manifest.json"), "utf8")) : null;
+if (cached) {
+  if (cached.games.length !== games.length) throw new Error("UI-only build requires an unchanged game catalog");
+  const byId = new Map(cached.games.map((game) => [game.id, game]));
+  for (const [sourcePath, sourceGames] of groupBySource(games)) {
+    const commit = await gitOutput(root, ["rev-parse", `HEAD:${sourcePath}`]);
+    for (const game of sourceGames) {
+      const previous = byId.get(game.id);
+      if (!previous || previous.commit !== commit || ["sourceId", "adapter", "entry", "cover"].some((key) => previous[key] !== game[key])) {
+        throw new Error(`UI-only build cannot reuse changed game ${game.id}`);
+      }
+    }
+  }
+}
 
 fs.rmSync(stagingDir, { recursive: true, force: true });
 fs.rmSync(previousDir, { recursive: true, force: true });
 fs.mkdirSync(stagingDir, { recursive: true });
+if (cached) fs.cpSync(outdir, stagingDir, { recursive: true, mode: fs.constants.COPYFILE_FICLONE });
 fs.mkdirSync(worktreesDir, { recursive: true });
 fs.mkdirSync(path.join(stagingDir, "covers"), { recursive: true });
 fs.mkdirSync(path.join(stagingDir, "notices"), { recursive: true });
 
-const builtGames = [];
-const serviceRuntimes = [];
+const builtGames = cached ? [...cached.games] : [];
+const serviceRuntimes = cached ? [...cached.runtimes] : [];
 const copiedNotices = new Set();
 const commitsByGame = new Map();
 
 try {
-  for (const [sourcePath, sourceGames] of groupBySource(games)) {
+  for (const [sourcePath, sourceGames] of groupBySource(cached ? [] : games)) {
     const source = path.join(root, sourcePath);
     const commit = await gitOutput(source, ["rev-parse", "HEAD"]);
     const status = await gitOutput(source, ["status", "--porcelain"]);
@@ -138,7 +154,7 @@ try {
     }
   }
 
-  await ensureGeneratedCovers({
+  if (!cached) await ensureGeneratedCovers({
     games,
     stagingDir,
     cacheDir: path.join(runtimeDir, "covers"),
