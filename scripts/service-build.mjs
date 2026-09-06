@@ -22,6 +22,7 @@ import { buildViteStatic } from "./adapters/vite-static.mjs";
 import { buildWebPackage } from "./adapters/web-package.mjs";
 import { ensureGeneratedCovers } from "./generate-covers.mjs";
 import { generateGamesCatalog } from "./generate-games.mjs";
+import { reuseBuildAssets } from "./reuse-build-assets.mjs";
 
 const execFileAsync = promisify(execFile);
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -55,6 +56,10 @@ const games = generateGamesCatalog();
 const uiOnly = process.env.OPEN_GAMES_UI_ONLY === "1";
 const cached = uiOnly ? JSON.parse(fs.readFileSync(path.join(outdir, "manifest.json"), "utf8")) : null;
 if (cached) {
+  if (!/^[a-f0-9]{40}$/.test(cached.version)) throw new Error("UI-only build requires a versioned previous build");
+  const changedBuildInputs = await gitOutput(root, ["diff", "--name-only", cached.version, "HEAD", "--",
+    "catalog", "scripts/adapters", "scripts/generate-games.mjs", "scripts/catalog-sources.mjs", "scripts/generate-covers.mjs"]);
+  if (changedBuildInputs) throw new Error(`UI-only build inputs changed: ${changedBuildInputs}`);
   if (cached.games.length !== games.length) throw new Error("UI-only build requires an unchanged game catalog");
   const byId = new Map(cached.games.map((game) => [game.id, game]));
   for (const [sourcePath, sourceGames] of groupBySource(games)) {
@@ -64,17 +69,17 @@ if (cached) {
       if (!previous || previous.commit !== commit || ["sourceId", "adapter", "entry", "cover"].some((key) => previous[key] !== game[key])) {
         throw new Error(`UI-only build cannot reuse changed game ${game.id}`);
       }
+      for (const asset of [game.entry, game.cover]) {
+        if (!fs.statSync(path.join(outdir, asset), { throwIfNoEntry: false })?.isFile()) {
+          throw new Error(`UI-only build is missing cached asset ${asset}`);
+        }
+      }
     }
   }
 }
 
 fs.rmSync(stagingDir, { recursive: true, force: true });
 fs.rmSync(previousDir, { recursive: true, force: true });
-fs.mkdirSync(stagingDir, { recursive: true });
-if (cached) fs.cpSync(outdir, stagingDir, { recursive: true, mode: fs.constants.COPYFILE_FICLONE });
-fs.mkdirSync(worktreesDir, { recursive: true });
-fs.mkdirSync(path.join(stagingDir, "covers"), { recursive: true });
-fs.mkdirSync(path.join(stagingDir, "notices"), { recursive: true });
 
 const builtGames = cached ? [...cached.games] : [];
 const serviceRuntimes = cached ? [...cached.runtimes] : [];
@@ -82,6 +87,11 @@ const copiedNotices = new Set();
 const commitsByGame = new Map();
 
 try {
+  fs.mkdirSync(stagingDir, { recursive: true });
+  if (cached) reuseBuildAssets(outdir, stagingDir);
+  fs.mkdirSync(worktreesDir, { recursive: true });
+  fs.mkdirSync(path.join(stagingDir, "covers"), { recursive: true });
+  fs.mkdirSync(path.join(stagingDir, "notices"), { recursive: true });
   for (const [sourcePath, sourceGames] of groupBySource(cached ? [] : games)) {
     const source = path.join(root, sourcePath);
     const commit = await gitOutput(source, ["rev-parse", "HEAD"]);

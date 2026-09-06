@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
 import fs from "node:fs";
 import http from "node:http";
+import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -33,6 +34,46 @@ import {
   validateRuntimeManifest,
 } from "../service/runtime.mjs";
 import { createCoverStaticServer } from "./generate-covers.mjs";
+import { reuseBuildAssets } from "./reuse-build-assets.mjs";
+
+test("UI-only assets share immutable files but isolate generated UI", () => {
+  const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "open-games-assets-"));
+  try {
+    const source = path.join(temporary, "current");
+    const destination = path.join(temporary, "next");
+    fs.mkdirSync(path.join(source, "games", "test"), { recursive: true });
+    fs.writeFileSync(path.join(source, "games/test/index.html"), "game");
+    fs.writeFileSync(path.join(source, "app-old.js"), "old-ui");
+    fs.writeFileSync(path.join(source, "index.html"), "old-index");
+    fs.writeFileSync(path.join(source, "manifest.json"), "{}");
+    fs.symlinkSync("index.html", path.join(source, "games/test/link.html"));
+    reuseBuildAssets(source, destination);
+    assert.equal(fs.statSync(path.join(source, "games/test/index.html")).ino,
+      fs.statSync(path.join(destination, "games/test/index.html")).ino);
+    assert.notEqual(fs.statSync(path.join(source, "app-old.js")).ino,
+      fs.statSync(path.join(destination, "app-old.js")).ino);
+    assert.equal(fs.existsSync(path.join(destination, "index.html")), false);
+    assert.equal(fs.existsSync(path.join(destination, "manifest.json")), false);
+    fs.writeFileSync(path.join(destination, "app-old.js"), "new-ui");
+    fs.rmSync(source, { recursive: true });
+    assert.equal(fs.readFileSync(path.join(destination, "games/test/link.html"), "utf8"), "game");
+  } finally {
+    fs.rmSync(temporary, { recursive: true, force: true });
+  }
+});
+
+test("UI-only reuse rejects symlinks outside the build", () => {
+  const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "open-games-assets-"));
+  try {
+    const source = path.join(temporary, "current");
+    fs.mkdirSync(source);
+    fs.writeFileSync(path.join(temporary, "external"), "outside");
+    fs.symlinkSync("../external", path.join(source, "link"));
+    assert.throws(() => reuseBuildAssets(source, path.join(temporary, "next")), /escapes build/);
+  } finally {
+    fs.rmSync(temporary, { recursive: true, force: true });
+  }
+});
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const sourceRegistry = readSourcesRegistry(root);
