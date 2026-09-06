@@ -148,7 +148,8 @@ async function smokeCatalog(browser, name, viewport) {
     await page.getByText(`${games.length} 款游戏`, { exact: false }).waitFor();
     await assertResultCount(page, games.length, `${name}: all games`);
 
-    await page.getByRole("button", { name: "筛选" }).click();
+    assert.equal(await page.locator("#catalog-filters").isVisible(), false);
+    await page.getByRole("button", { name: "筛选", exact: true }).click();
     await page.getByLabel("来源").selectOption({ label: "Mini Browser Games" });
     await assertResultCount(
       page,
@@ -209,6 +210,12 @@ async function smokeCatalog(browser, name, viewport) {
     await assertResultCount(page, 1, `${name}: search`);
     assert.equal(await page.locator(".game-card").count(), 1, `${name}: search card count`);
     await page.getByLabel("搜索游戏").fill("");
+    await page.getByLabel("分层").selectOption("showcase");
+    await page.locator(".filter-toggle").click();
+    assert.equal(await page.locator("#catalog-filters").isVisible(), false);
+    assert.equal(await page.locator(".filter-chips").isVisible(), true);
+    await page.getByRole("button", { name: "清除筛选", exact: true }).click();
+    await assertResultCount(page, games.length, `${name}: reset collapsed filters`);
 
     const firstCard = page.locator(".showcase-grid .game-card").first();
     await firstCard.locator(".game-cover").evaluate((image) => {
